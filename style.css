@@ -827,7 +827,7 @@ textarea {
   margin-top: 2rem;
   cursor: pointer;
   filter: none;
-  color : #ffffffaa;
+  color : #ffffffc6;
   border: 0.2rem solid #0015ff;
 }
 section.start-animation .btn {
@@ -947,3 +947,4 @@ footer i {
     width: 100%;
   }
 }
+
