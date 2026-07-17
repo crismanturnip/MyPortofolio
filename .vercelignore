@@ -1,0 +1,14 @@
+.agents
+.next
+node_modules
+coverage
+dist
+*.log
+*.tsbuildinfo
+index.html
+content
+docs
+z_apps_backup
+public/uploads
+.chrome-check*/
+reader-*.png

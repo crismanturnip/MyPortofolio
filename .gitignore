@@ -1,0 +1,13 @@
+.next
+node_modules
+.env
+.env.local
+coverage
+dist
+*.log
+*.tsbuildinfo
+public/uploads
+prisma/dev.db
+prisma/dev.db-journal
+.chrome-check*/
+reader-*.png
