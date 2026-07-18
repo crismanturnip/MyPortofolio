@@ -32,7 +32,7 @@ export default async function NovelListPage() {
         {novelCards.length === 0 ? <p className="reader-surface rounded-2xl border p-8">Belum ada novel published.</p> : null}
         {novelCards.map((novel) => (
           <a key={novel.id} href={`/novel/${novel.slug}`} className="reader-surface reader-card-lift group overflow-hidden rounded-2xl border p-4">
-            <div className="overflow-hidden rounded-xl"><img src={novel.coverUrl} alt={novel.title} className="reader-card-image aspect-[3/4] w-full object-cover" /></div>
+            <div className="overflow-hidden rounded-xl"><img src={novel.coverUrl} alt={novel.title} loading="lazy" decoding="async" className="reader-card-image aspect-[3/4] w-full object-cover" /></div>
             <div className="pt-4">
               <p className="reader-cyan text-xs font-bold uppercase tracking-widest">{novel.genre || "Novel"}</p>
               <h2 className="mt-2 text-xl font-bold group-hover:text-[var(--reader-primary)]">{novel.title}</h2>

@@ -41,7 +41,7 @@ export default async function BlogListPage() {
               index === 0 ? "md:col-span-2 md:grid md:grid-cols-[1.05fr_0.95fr]" : ""
             }`}
           >
-            <div className="overflow-hidden"><img src={blog.thumbnailUrl} alt={blog.title} className="reader-card-image h-56 w-full object-cover sm:h-64 md:h-full" /></div>
+            <div className="overflow-hidden"><img src={blog.thumbnailUrl} alt={blog.title} loading="lazy" decoding="async" className="reader-card-image h-56 w-full object-cover sm:h-64 md:h-full" /></div>
             <div className="p-6">
               <div className="flex flex-wrap gap-2">
                 {blog.categories.map(({ category }) => (

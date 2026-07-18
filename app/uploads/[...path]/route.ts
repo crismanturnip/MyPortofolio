@@ -8,7 +8,12 @@ const MIME_TYPES: Record<string, string> = {
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
   ".png": "image/png",
-  ".webp": "image/webp"
+  ".webp": "image/webp",
+  ".gif": "image/gif",
+  ".mp3": "audio/mpeg",
+  ".m4a": "audio/mp4",
+  ".wav": "audio/wav",
+  ".ogg": "audio/ogg"
 };
 
 export const dynamic = "force-dynamic";
@@ -33,7 +38,7 @@ export async function GET(_request: Request, { params }: Props) {
     return new Response(new Uint8Array(file), {
       headers: {
         "Content-Type": contentType,
-        "Cache-Control": "public, max-age=3600"
+        "Cache-Control": "public, max-age=2592000"
       }
     });
   } catch {

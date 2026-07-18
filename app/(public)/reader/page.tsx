@@ -110,7 +110,7 @@ export default async function ReaderLandingPage() {
             {displayBlogs.map((blog, index) => (
               <a key={blog.id} href={getPublicContentHref("blog", `/${blog.slug}`)} className="reader-card-link group grid gap-5 rounded-xl p-2 sm:grid-cols-[150px_1fr]">
                 <div className="aspect-[4/3] overflow-hidden rounded-lg bg-[var(--reader-surface-soft)]">
-                  <img src={blog.thumbnailUrl} alt={blog.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                  <img src={blog.thumbnailUrl} alt={blog.title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                 </div>
                 <div className="py-1">
                   <h3 className="text-xl font-semibold leading-snug group-hover:text-[var(--reader-primary)]">{blog.title}</h3>
@@ -130,7 +130,7 @@ export default async function ReaderLandingPage() {
             <div className="reader-surface reader-card-lift mt-8 rounded-2xl border p-5 sm:p-6">
               <div className="grid gap-6 sm:grid-cols-[160px_1fr]">
                 <div className="aspect-[3/4] overflow-hidden rounded-lg bg-[var(--reader-surface-soft)] shadow-sm">
-                  <img src={featuredNovelCover || novelFallbackImages[1]} alt={featuredNovel.title} className="h-full w-full object-cover" />
+                  <img src={featuredNovelCover || novelFallbackImages[1]} alt={featuredNovel.title} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                 </div>
                 <div>
                   <h3 className="text-2xl font-semibold leading-tight">{featuredNovel.title}</h3>
@@ -150,7 +150,7 @@ export default async function ReaderLandingPage() {
                 {displayChapters.map((chapter) => (
                   <a key={chapter.id} href={getPublicContentHref("novel", `/${featuredNovel.slug}/chapter/${chapter.slug}`)} className="reader-chapter-link grid grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-3 rounded-lg p-2 sm:grid-cols-[56px_minmax(0,1fr)_auto] sm:gap-4">
                     <div className="h-14 w-14 overflow-hidden rounded-lg bg-[var(--reader-surface-soft)]">
-                      <img src={chapter.thumbnailUrl} alt={chapter.title} className="h-full w-full object-cover" />
+                      <img src={chapter.thumbnailUrl} alt={chapter.title} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold">Bab {chapter.chapterNumber} - {chapter.title}</p>
@@ -178,7 +178,7 @@ export default async function ReaderLandingPage() {
             </i></h3>
           </div>
           <div className="hidden md:block">
-            <img src={heroImage} alt="Crisman" className="aspect-[4/3] w-full rounded-xl object-cover opacity-85" />
+            <img src={heroImage} alt="Crisman" loading="lazy" decoding="async" className="aspect-[4/3] w-full rounded-xl object-cover opacity-85" />
           </div>
           <QuoteMusicPlayer src="/assets/audio/quote-music.mp3" targetId="tentang" />
         </div>

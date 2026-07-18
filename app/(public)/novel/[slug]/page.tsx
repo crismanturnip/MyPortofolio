@@ -31,7 +31,7 @@ export default async function NovelDetailPage({ params }: Props) {
     <article className="reader-page mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
       <a href="/novel" className="reader-back-link mb-5 inline-flex items-center gap-2 text-sm font-bold"><ArrowLeft size={16} aria-hidden="true" />Semua novel</a>
       <section className="reader-surface reader-reveal grid gap-7 rounded-2xl border p-4 sm:p-6 md:grid-cols-[240px_1fr] md:p-8 lg:grid-cols-[280px_1fr]">
-        <img src={coverUrl} alt={novel.title} className="mx-auto aspect-[3/4] w-full max-w-[280px] rounded-xl object-cover shadow-lg" />
+        <img src={coverUrl} alt={novel.title} decoding="async" className="mx-auto aspect-[3/4] w-full max-w-[280px] rounded-xl object-cover shadow-lg" />
         <div className="grid content-center">
           <p className="reader-cyan text-sm font-bold uppercase tracking-[0.22em]">{novel.genre || "Novel"}</p>
           <h1 className="mt-3 text-4xl font-semibold leading-tight tracking-wide md:text-6xl">{novel.title}</h1>

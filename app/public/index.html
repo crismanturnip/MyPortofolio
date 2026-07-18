@@ -4,9 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Crisman P Turnip</title>
-    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css"/>
-    <link rel="stylesheet" href="assets/css/style.css?v=section-title-uniform-20260717" />
-    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <link rel="preload" href="/fonts/poppins-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/poppins-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/vendor/swiper/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="assets/css/style.css?v=mobile-performance-20260718" />
+    <link href="/vendor/boxicons/css/boxicons.min.css" rel="stylesheet" />
 
   </head>
 
@@ -67,12 +69,12 @@
     </a>
   </div>
       </div>
-      <img src="assets/images/img4.jpg" alt="" class="img4" />
+      <img src="assets/images/img4.jpg" alt="" class="img4" decoding="async" fetchpriority="high" />
     </section>
     <!-- *************************About Section************************* -->
     <section class="about" id="about">
       <h2 class="title">About <span>Me</span></h2>
-      <img src="assets/images/img4.jpg" alt="" class="aboutImg" />
+      <img src="assets/images/img4.jpg" alt="" class="aboutImg" loading="lazy" decoding="async" />
       <div class="text-content2">
         <h2>Crisman Panorangi Turnip</h2>
         <p class="about-summary">I am an Informatics Engineering student at the Sumatra Institute of Technology.</p>
@@ -153,42 +155,42 @@
   <div class="swiper gallerySwiper gallery-slider" aria-label="Photo gallery">
     <div class="swiper-wrapper">
       <article class="swiper-slide gallery-item">
-        <img src="assets/images/img1.png" alt="Foto Angkatan">
+        <img src="assets/images/img1.png" alt="Foto Angkatan" loading="lazy" decoding="async">
         <div class="gallery-info">
           <span>Algovista</span>
           <p>Teknik Informatika Angkatan 2024</p>
         </div>
       </article>
       <article class="swiper-slide gallery-item">
-        <img src="assets/images/img2.png" alt="Volunteer HMIF Mengabdi">
+        <img src="assets/images/img2.png" alt="Volunteer HMIF Mengabdi" loading="lazy" decoding="async">
         <div class="gallery-info">
           <span>Volunteer</span>
           <p>HMIF Mengabdi</p>
         </div>
       </article>
       <article class="swiper-slide gallery-item">
-        <img src="assets/images/img3.jpeg" alt="HMExURO Goes To School">
+        <img src="assets/images/img3.jpeg" alt="HMExURO Goes To School" loading="lazy" decoding="async">
         <div class="gallery-info">
           <span>UROTERA</span>
           <p>HME X UROTERA Goes To School</p>
         </div>
       </article>
       <article class="swiper-slide gallery-item">
-        <img src="assets/images/img9.png" alt="UROTERA">
+        <img src="assets/images/img9.png" alt="UROTERA" loading="lazy" decoding="async">
         <div class="gallery-info">
           <span>UROTERA</span>
           <p>Pelantikan Anggota Unit Robotika ITERA</p>
         </div>
       </article>
       <article class="swiper-slide gallery-item">
-        <img src="assets/images/img10.png" alt="Technopreneur HMIF">
+        <img src="assets/images/img10.png" alt="Technopreneur HMIF" loading="lazy" decoding="async">
         <div class="gallery-info">
           <span>Technopreneur HMIF</span>
           <p>Himpunan Mahasiswa Informatika ITERA</p>
         </div>
       </article>
       <article class="swiper-slide gallery-item">
-        <img src="assets/images/img11.png" alt="HMEI Riuh Wisuda">
+        <img src="assets/images/img11.png" alt="HMEI Riuh Wisuda" loading="lazy" decoding="async">
         <div class="gallery-info">
           <span>HMEI Riuh Wisuda</span>
           <p>Himpunan Mahasiswa Elektro Informatika ITERA</p>
@@ -218,7 +220,7 @@
 
       <!-- Slide 1 -->
       <div class="swiper-slide">
-        <img src="assets/images/img5.jpg" alt="Certificate 1">
+        <img src="assets/images/img5.jpg" alt="Certificate 1" loading="lazy" decoding="async">
         <h3>UI/UX Design Competition</h3>
         <h4>Universitas Sumatera Utara</h4>
       </div>
@@ -227,13 +229,13 @@
 
       <!-- Slide 3 -->
       <div class="swiper-slide">
-        <img src="assets/images/img6.jpg" alt="Certificate 3">
+        <img src="assets/images/img6.jpg" alt="Certificate 3" loading="lazy" decoding="async">
         <h3>Software Developer Certificate</h3>
         <h4>Dicoding</h4>
       </div>
 
       <div class="swiper-slide">
-        <img src="assets/images/img8.jpg" alt="Certificate 4">
+        <img src="assets/images/img8.jpg" alt="Certificate 4" loading="lazy" decoding="async">
         <h3>Micro Skill Certificate</h3>
         <h4>Digitalent</h4>
       </div>
@@ -252,21 +254,21 @@
 
       <!-- Slide 1 -->
       <div class="swiper-slide">
-        <img src="assets/images/project1.png" alt="Project 1">
+        <img src="assets/images/project1.png" alt="Project 1" loading="lazy" decoding="async">
         <h3>Tech Learning</h3>
         <h4>Desain UI/UX Platform Digital Penunjang Potensi dan Motivasi Belajar Siswa Menggunakan Aplikasi Figma</h4>
       </div>
 
       <!-- Slide 2 -->
       <div class="swiper-slide">
-        <img src="assets/images/project2.jpg" alt="Project 2">
+        <img src="assets/images/project2.jpg" alt="Project 2" loading="lazy" decoding="async">
         <h3>Lampu Pintar berbasis Internet of Things</h3>
         <h4>Kontrol Lampu menggunakan Google Voice</h4>
       </div>
 
       <!-- Slide 3 -->
       <div class="swiper-slide">
-        <img src="assets/images/project6.png" alt="Project 3">
+        <img src="assets/images/project6.png" alt="Project 3" loading="lazy" decoding="async">
         <h3>Website Portofolio</h3>
         <h4>Membangun Website Portofolio menggunakan HTML, CSS, dan JavaScript</h4>
       </div>
@@ -434,7 +436,7 @@
         <p>&copy; 2026 Crisman P Turnip. All rights reserved</p>
       </div>
     </footer>
-    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    <script src="/vendor/swiper/swiper-bundle.min.js"></script>
     <script src="assets/js/script.js?v=portfolio-coming-soon-20260717">
     </script>
   </body>

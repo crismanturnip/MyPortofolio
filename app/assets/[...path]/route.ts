@@ -14,7 +14,9 @@ const MIME_TYPES: Record<string, string> = {
   ".gif": "image/gif",
   ".svg": "image/svg+xml",
   ".mp3": "audio/mpeg",
-  ".ttf": "font/ttf"
+  ".ttf": "font/ttf",
+  ".woff": "font/woff",
+  ".woff2": "font/woff2"
 };
 
 export const dynamic = "force-dynamic";
@@ -40,7 +42,7 @@ export async function GET(_request: Request, { params }: Props) {
       headers: {
         "Content-Type": contentType,
         "Cache-Control": process.env.NODE_ENV === "production"
-          ? "public, max-age=3600"
+          ? "public, max-age=604800"
           : "no-store, max-age=0"
       }
     });

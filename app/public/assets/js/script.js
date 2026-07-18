@@ -450,7 +450,7 @@ function renderWritingUniverse(container, items) {
       return `
         <article class="writing-card">
           <div class="writing-cover">
-            <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(item.title)}" loading="lazy" onerror="this.onerror=null;this.src='${escapeHtml(fallbackImage)}';">
+            <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(item.title)}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='${escapeHtml(fallbackImage)}';">
             <span class="writing-type">Novel</span>
           </div>
           <div class="writing-status"><span></span>Published</div>
@@ -497,7 +497,7 @@ function renderBlogUniverse(container, items) {
       return `
         <article class="writing-card">
           <div class="writing-cover">
-            <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(item.title)}" loading="lazy" onerror="this.onerror=null;this.src='${escapeHtml(fallbackImage)}';">
+            <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(item.title)}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='${escapeHtml(fallbackImage)}';">
             <span class="writing-type">Blog</span>
           </div>
           <div class="writing-status"><span></span>Published</div>

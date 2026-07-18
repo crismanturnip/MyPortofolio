@@ -44,7 +44,7 @@ export default async function BlogDetailPage({ params }: Props) {
       </section>
       {thumbnailUrl ? (
         <div className="mx-auto max-w-5xl px-4">
-          <img src={thumbnailUrl} alt={blog.title} className="max-h-[520px] w-full rounded-2xl border object-cover reader-surface" />
+          <img src={thumbnailUrl} alt={blog.title} decoding="async" className="max-h-[520px] w-full rounded-2xl border object-cover reader-surface" />
         </div>
       ) : null}
       <section className="mx-auto max-w-[760px] px-4 py-8 sm:px-6 sm:py-12">
