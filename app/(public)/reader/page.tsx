@@ -77,7 +77,7 @@ export default async function ReaderLandingPage() {
               <span className="reader-accent reader-hero-accent"> segala yang dipikirkan</span>
             </h1>
             <p className="reader-muted reader-hero-copy mt-6 max-w-md text-base leading-8 md:text-lg">
-              Tempat pengalaman menjadi tulisan dan imajinasi tumbuh menjadi cerita
+              Sisakan ruang bagimu untuk menuangkan cerita. Terkadang, manusia hanya perlu bercerita, entah dimana atau dengan siapa anda bercerita
             </p>
             <div className="reader-hero-actions mt-8 flex flex-wrap gap-4">
               <a href={getPublicContentHref("blog")} className="reader-button reader-hero-cta inline-flex h-12 items-center gap-2 rounded-lg border px-6 text-sm font-bold shadow-sm">
@@ -95,10 +95,10 @@ export default async function ReaderLandingPage() {
 
       <section className="reader-soft reader-feature-strip reader-section-divider px-4 py-12">
         <div className="reader-feature-grid mx-auto grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <FeatureCard number="01" tone="journal" icon={<NotebookPen size={23} />} title="Personal Blog" text="Tulisan, pemikiran, dan pengalaman pribadi." href={getPublicContentHref("blog")} action="Jelajahi Blog" />
-          <FeatureCard number="02" tone="novel" icon={<LibraryBig size={23} />} title="Koleksi Novel" text="Kumpulan cerita fiksi dan dunia imajinasi." href={getPublicContentHref("novel")} action="Jelajahi Novel" />
-          <FeatureCard number="03" tone="idea" icon={<Lightbulb size={23} />} title="Cerita & Inspirasi" text="Ide, refleksi, dan hal-hal yang menginspirasi." href={getPublicContentHref("blog")} action="Baca Sekarang" />
-          <FeatureCard number="04" tone="heart" icon={<HeartHandshake size={23} />} title="Dibuat dengan Hati" text="Setiap tulisan dibuat dengan niat dan cinta." href="#tentang" action="Tentang Saya" />
+          <FeatureCard number="01" tone="journal" icon={<NotebookPen size={23} />} title="Untaian Kalimat Ringan" text="Menuangkan segala pikiran ke dalam sebuah kalimat adalah salah satu usaha untuk meringankan pikiran" href={getPublicContentHref("blog")} action="Jelajahi Untaian" />
+          <FeatureCard number="02" tone="novel" icon={<LibraryBig size={23} />} title="Beragam Cerita" text="Aku bingung membuat cerita apa, sungguh. Aku hanya memikirkan dia seorang" href={getPublicContentHref("novel")} action="Jelajahi Cerita" />
+          <FeatureCard number="03" tone="idea" icon={<Lightbulb size={23} />} title="Momen Kehidupan" text="Hidup itu berat, kamu hanya perlu menemukan seseorang yang pas untuk menemani. Lalu hidup akan terasa ringan" href={getPublicContentHref("blog")} action="Jelajahi Dunia" />
+          <FeatureCard number="04" tone="heart" icon={<HeartHandshake size={23} />} title="Tentang Saya" text="Aku adalah aku, bagaimana aku mencintaimu biarlah urusanku. Bagaimana kamu kepadaku, terserah itu urusanmu (Ayah Pidi Baiq)" href="#tentang" action="Tentang Saya" />
         </div>
       </section>
 
