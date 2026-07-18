@@ -79,6 +79,9 @@ model Novel {
   summary    String
   genre      String?
   coverUrl   String?
+  musicTitle String?
+  musicArtist String?
+  musicUrl   String?
   status     PublishStatus @default(DRAFT)
   publishedAt DateTime?
   createdAt  DateTime      @default(now())
@@ -94,6 +97,10 @@ model Chapter {
   slug         String
   chapterNumber Int
   content      String
+  thumbnailUrl String?
+  musicTitle   String?
+  musicArtist  String?
+  musicUrl     String?
   status       PublishStatus @default(DRAFT)
   publishedAt  DateTime?
   createdAt    DateTime      @default(now())

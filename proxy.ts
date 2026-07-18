@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { PUBLIC_CONTENT_RELEASED } from "@/lib/content-release";
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -13,12 +14,25 @@ export function proxy(request: NextRequest) {
     pathname.startsWith("/api/admin/auth/logout") ||
     pathname.startsWith("/api/admin/auth/me");
 
-  if (isAdminPage && !isLoginPage && !sessionToken) {
-    return NextResponse.redirect(new URL("/admin/login", request.url));
+  const contentType = pathname.startsWith("/novel") || pathname.startsWith("/api/public/novels")
+    ? "novel"
+    : pathname.startsWith("/blog") || pathname.startsWith("/api/public/blogs")
+      ? "blog"
+      : null;
+
+  if (!PUBLIC_CONTENT_RELEASED && contentType) {
+    if (pathname.startsWith("/api/public/")) {
+      return NextResponse.json({ message: "Konten belum tersedia." }, { status: 404 });
+    }
+
+    const comingSoonUrl = new URL("/coming-soon", request.url);
+    comingSoonUrl.searchParams.set("type", contentType);
+    comingSoonUrl.searchParams.set("title", contentType === "blog" ? "Blog" : "Series");
+    return NextResponse.redirect(comingSoonUrl);
   }
 
-  if (isLoginPage && sessionToken) {
-    return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+  if (isAdminPage && !isLoginPage && !sessionToken) {
+    return NextResponse.redirect(new URL("/admin/login", request.url));
   }
 
   if (isAdminApi && !isAuthApi && !sessionToken) {
@@ -29,5 +43,12 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*"]
+  matcher: [
+    "/admin/:path*",
+    "/api/admin/:path*",
+    "/blog/:path*",
+    "/novel/:path*",
+    "/api/public/blogs/:path*",
+    "/api/public/novels/:path*"
+  ]
 };

@@ -13,7 +13,8 @@ const MIME_TYPES: Record<string, string> = {
   ".webp": "image/webp",
   ".gif": "image/gif",
   ".svg": "image/svg+xml",
-  ".mp3": "audio/mpeg"
+  ".mp3": "audio/mpeg",
+  ".ttf": "font/ttf"
 };
 
 export const dynamic = "force-dynamic";
@@ -38,7 +39,9 @@ export async function GET(_request: Request, { params }: Props) {
     return new Response(new Uint8Array(file), {
       headers: {
         "Content-Type": contentType,
-        "Cache-Control": "public, max-age=3600"
+        "Cache-Control": process.env.NODE_ENV === "production"
+          ? "public, max-age=3600"
+          : "no-store, max-age=0"
       }
     });
   } catch {

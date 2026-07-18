@@ -2,6 +2,7 @@
 
 import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, ChevronLeft, ChevronRight, List, Maximize2, RotateCcw, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import MusicPlayer, { type MusicTrack } from "@/components/music-player";
 
 type ReaderSlide = {
   id: number;
@@ -36,27 +37,38 @@ type StoryReaderProps = {
   episodes: ReaderEpisode[];
   previous: ReaderEpisode | null;
   next: ReaderEpisode | null;
+  music?: MusicTrack | null;
+  progressNamespace?: string;
+  backHref?: string;
+  chapterBasePath?: string;
 };
 
 function slideStorageKey(storySlug: string, episodeSlug: string) {
   return `crisman-reader-progress:${storySlug}:${episodeSlug}`;
 }
 
-function progressLabel(storySlug: string, episodeSlug: string) {
+function namespacedStorageKey(namespace: string, storySlug: string, episodeSlug: string) {
+  const key = slideStorageKey(storySlug, episodeSlug);
+  return namespace === "public" ? key : `${namespace}:${key}`;
+}
+
+function progressLabel(storySlug: string, episodeSlug: string, namespace = "public") {
   if (typeof window === "undefined") return "";
-  const value = window.localStorage.getItem(slideStorageKey(storySlug, episodeSlug));
+  const value = window.localStorage.getItem(namespacedStorageKey(namespace, storySlug, episodeSlug));
   if (!value) return "";
   const parsed = Number(value);
   return Number.isFinite(parsed) && parsed > 0 ? `Terakhir slide ${parsed + 1}` : "";
 }
 
-export default function StoryReader({ story, episode, slides, episodes, previous, next }: StoryReaderProps) {
+export default function StoryReader({ story, episode, slides, episodes, previous, next, music, progressNamespace = "public", backHref, chapterBasePath }: StoryReaderProps) {
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [sheetOpen, setSheetOpen] = useState(false);
   const endingIndex = slides.length;
   const isEnding = activeIndex === endingIndex;
   const progress = slides.length > 0 ? ((Math.min(activeIndex, slides.length - 1) + 1) / slides.length) * 100 : 100;
+  const storyHref = backHref || `/novel/${story.slug}`;
+  const episodeHref = (slug: string) => chapterBasePath ? `${chapterBasePath}/${slug}` : `/novel/${story.slug}/chapter/${slug}`;
 
   const currentEpisodeIndex = useMemo(
     () => episodes.findIndex((item) => item.slug === episode.slug),
@@ -72,18 +84,18 @@ export default function StoryReader({ story, episode, slides, episodes, previous
   }, [endingIndex]);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem(slideStorageKey(story.slug, episode.slug));
+    const saved = window.localStorage.getItem(namespacedStorageKey(progressNamespace, story.slug, episode.slug));
     const savedIndex = saved ? Number(saved) : 0;
     if (Number.isFinite(savedIndex) && savedIndex > 0) {
       window.requestAnimationFrame(() => scrollToIndex(Math.min(savedIndex, slides.length - 1), "auto"));
     }
-  }, [episode.slug, scrollToIndex, slides.length, story.slug]);
+  }, [episode.slug, progressNamespace, scrollToIndex, slides.length, story.slug]);
 
   useEffect(() => {
     if (activeIndex < slides.length) {
-      window.localStorage.setItem(slideStorageKey(story.slug, episode.slug), String(activeIndex));
+      window.localStorage.setItem(namespacedStorageKey(progressNamespace, story.slug, episode.slug), String(activeIndex));
     }
-  }, [activeIndex, episode.slug, slides.length, story.slug]);
+  }, [activeIndex, episode.slug, progressNamespace, slides.length, story.slug]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -134,7 +146,7 @@ export default function StoryReader({ story, episode, slides, episodes, previous
       <div className="mx-auto flex w-full max-w-[560px] flex-col gap-4 md:max-w-[640px] md:gap-5 xl:max-w-[680px]">
         <header className="reader-surface sticky top-[4.75rem] z-20 rounded-2xl border p-3 shadow-sm md:top-24">
           <div className="flex items-center justify-between gap-3">
-            <a href={`/novel/${story.slug}`} className="reader-button-secondary grid h-10 w-10 shrink-0 place-items-center rounded-xl border" aria-label="Kembali ke daftar episode">
+            <a href={storyHref} className="reader-button-secondary grid h-10 w-10 shrink-0 place-items-center rounded-xl border" aria-label="Kembali ke daftar episode">
               <ArrowLeft size={18} />
             </a>
             <div className="min-w-0 flex-1 text-center">
@@ -165,6 +177,8 @@ export default function StoryReader({ story, episode, slides, episodes, previous
           </div>
         </section>
 
+        {music ? <MusicPlayer track={music} compact /> : null}
+
         <div className="relative">
           <button
             type="button"
@@ -184,7 +198,7 @@ export default function StoryReader({ story, episode, slides, episodes, previous
             {slides.map((slide) => (
               <StorySlide key={slide.id} slide={slide} />
             ))}
-            <CompletionCard storySlug={story.slug} next={next} onReplay={() => scrollToIndex(0)} />
+            <CompletionCard storyHref={storyHref} episodeHref={episodeHref} next={next} onReplay={() => scrollToIndex(0)} />
           </div>
 
           <button
@@ -210,12 +224,12 @@ export default function StoryReader({ story, episode, slides, episodes, previous
           </button>
           {isEnding ? (
             next ? (
-              <a href={`/novel/${story.slug}/chapter/${next.slug}`} className="reader-button inline-flex h-12 items-center justify-center gap-2 rounded-xl border text-sm font-semibold">
+              <a href={episodeHref(next.slug)} className="reader-button inline-flex h-12 items-center justify-center gap-2 rounded-xl border text-sm font-semibold">
                 Episode Berikutnya
                 <ArrowRight size={18} />
               </a>
             ) : (
-              <a href={`/novel/${story.slug}`} className="reader-button inline-flex h-12 items-center justify-center gap-2 rounded-xl border text-sm font-semibold">
+              <a href={storyHref} className="reader-button inline-flex h-12 items-center justify-center gap-2 rounded-xl border text-sm font-semibold">
                 Daftar Episode
               </a>
             )
@@ -228,8 +242,8 @@ export default function StoryReader({ story, episode, slides, episodes, previous
         </div>
 
         <nav className="grid gap-3 sm:grid-cols-2">
-          {previous ? <EpisodeNavCard label="Sebelumnya" storySlug={story.slug} episode={previous} /> : <div />}
-          {next ? <EpisodeNavCard label="Berikutnya" storySlug={story.slug} episode={next} alignRight /> : null}
+          {previous ? <EpisodeNavCard label="Sebelumnya" href={episodeHref(previous.slug)} episode={previous} /> : <div />}
+          {next ? <EpisodeNavCard label="Berikutnya" href={episodeHref(next.slug)} episode={next} alignRight /> : null}
         </nav>
       </div>
 
@@ -237,6 +251,8 @@ export default function StoryReader({ story, episode, slides, episodes, previous
         open={sheetOpen}
         onClose={() => setSheetOpen(false)}
         storySlug={story.slug}
+        progressNamespace={progressNamespace}
+        episodeHref={episodeHref}
         currentSlug={episode.slug}
         episodes={episodes}
       />
@@ -269,7 +285,7 @@ function StorySlide({ slide }: { slide: ReaderSlide }) {
   );
 }
 
-function CompletionCard({ storySlug, next, onReplay }: { storySlug: string; next: ReaderEpisode | null; onReplay: () => void }) {
+function CompletionCard({ storyHref, episodeHref, next, onReplay }: { storyHref: string; episodeHref: (slug: string) => string; next: ReaderEpisode | null; onReplay: () => void }) {
   return (
     <article className="grid min-w-full snap-center snap-always place-items-center bg-[var(--reader-surface-soft)] p-6 text-center">
       <div>
@@ -278,12 +294,12 @@ function CompletionCard({ storySlug, next, onReplay }: { storySlug: string; next
         {next ? <p className="reader-muted mt-3">Episode berikutnya: Ch {next.chapterNumber}: {next.title}</p> : <p className="reader-muted mt-3">Belum ada episode berikutnya.</p>}
         <div className="mt-6 grid gap-3">
           {next ? (
-            <a href={`/novel/${storySlug}/chapter/${next.slug}`} className="reader-button inline-flex h-11 items-center justify-center gap-2 rounded-xl border text-sm font-semibold">
+            <a href={episodeHref(next.slug)} className="reader-button inline-flex h-11 items-center justify-center gap-2 rounded-xl border text-sm font-semibold">
               Lanjut ke Episode Berikutnya
               <ArrowRight size={17} />
             </a>
           ) : null}
-          <a href={`/novel/${storySlug}`} className="reader-button-secondary inline-flex h-11 items-center justify-center gap-2 rounded-xl border text-sm font-semibold">
+          <a href={storyHref} className="reader-button-secondary inline-flex h-11 items-center justify-center gap-2 rounded-xl border text-sm font-semibold">
             <BookOpen size={17} />
             Kembali ke Daftar Episode
           </a>
@@ -297,9 +313,9 @@ function CompletionCard({ storySlug, next, onReplay }: { storySlug: string; next
   );
 }
 
-function EpisodeNavCard({ label, storySlug, episode, alignRight }: { label: string; storySlug: string; episode: ReaderEpisode; alignRight?: boolean }) {
+function EpisodeNavCard({ label, href, episode, alignRight }: { label: string; href: string; episode: ReaderEpisode; alignRight?: boolean }) {
   return (
-    <a href={`/novel/${storySlug}/chapter/${episode.slug}`} className={`reader-surface rounded-2xl border p-4 ${alignRight ? "text-right" : ""}`}>
+    <a href={href} className={`reader-surface rounded-2xl border p-4 ${alignRight ? "text-right" : ""}`}>
       <span className="reader-cyan text-xs font-semibold uppercase tracking-widest">{label}</span>
       <p className="mt-1 font-semibold">Ch {episode.chapterNumber}: {episode.title}</p>
     </a>
@@ -310,12 +326,16 @@ function EpisodeListSheet({
   open,
   onClose,
   storySlug,
+  progressNamespace,
+  episodeHref,
   currentSlug,
   episodes,
 }: {
   open: boolean;
   onClose: () => void;
   storySlug: string;
+  progressNamespace: string;
+  episodeHref: (slug: string) => string;
   currentSlug: string;
   episodes: ReaderEpisode[];
 }) {
@@ -337,9 +357,9 @@ function EpisodeListSheet({
         <div className="grid max-h-[calc(78vh-5rem)] gap-3 overflow-y-auto p-4">
           {episodes.map((item) => {
             const active = item.slug === currentSlug;
-            const saved = progressLabel(storySlug, item.slug);
+            const saved = progressLabel(storySlug, item.slug, progressNamespace);
             return (
-              <a key={item.slug} href={`/novel/${storySlug}/chapter/${item.slug}`} className={`grid grid-cols-[64px_1fr] gap-3 rounded-2xl border p-3 ${active ? "border-[var(--reader-cyan)]" : "border-[var(--reader-border)]"}`}>
+              <a key={item.slug} href={episodeHref(item.slug)} className={`grid grid-cols-[64px_1fr] gap-3 rounded-2xl border p-3 ${active ? "border-[var(--reader-cyan)]" : "border-[var(--reader-border)]"}`}>
                 {item.thumbnail ? (
                   <img src={item.thumbnail} alt={item.title} className="aspect-[3/4] rounded-xl object-cover" loading="lazy" />
                 ) : (

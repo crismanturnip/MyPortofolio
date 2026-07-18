@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import StoryReader from "@/components/story-reader";
 import { sanitizeRichText } from "@/lib/sanitize-html";
+import MusicPlayer, { type MusicTrack } from "@/components/music-player";
 
 type Props = {
   params: Promise<{ slug: string; chapterSlug: string }>;
@@ -52,6 +53,11 @@ export default async function ChapterDetailPage({ params }: Props) {
     thumbnail: item.slides.find((slide) => slide.imageUrl)?.imageUrl || null,
     slideCount: item.slides.length,
   }));
+  const track: MusicTrack | null = chapter.musicUrl
+    ? { title: chapter.musicTitle, artist: chapter.musicArtist, url: chapter.musicUrl, source: "chapter" }
+    : chapter.novel.musicUrl
+      ? { title: chapter.novel.musicTitle, artist: chapter.novel.musicArtist, url: chapter.novel.musicUrl, source: "novel" }
+      : null;
 
   if (chapter.slides.length > 0) {
     return (
@@ -62,6 +68,7 @@ export default async function ChapterDetailPage({ params }: Props) {
         episodes={episodes}
         previous={previous ? episodes[currentIndex - 1] : null}
         next={next ? episodes[currentIndex + 1] : null}
+        music={track}
       />
     );
   }
@@ -70,15 +77,16 @@ export default async function ChapterDetailPage({ params }: Props) {
   const words = safeContent.replace(/<[^>]+>/g, " ").trim().split(/\s+/).filter(Boolean).length;
 
   return (
-    <article className="mx-auto max-w-3xl px-4 py-10">
+    <article className="reader-page mx-auto max-w-[780px] px-4 py-8 sm:px-6 sm:py-12">
       <a href={`/novel/${chapter.novel.slug}`} className="reader-primary text-sm font-bold">← Kembali ke detail novel</a>
       <header className="mt-8 border-b pb-8 text-center" style={{ borderColor: "var(--reader-border)" }}>
         <p className="reader-muted text-sm font-bold uppercase tracking-[0.22em]">{chapter.novel.title}</p>
         <h1 className="mt-3 text-4xl font-semibold leading-tight tracking-wide md:text-5xl">{chapter.title}</h1>
         <p className="reader-muted mt-4">Chapter {chapter.chapterNumber} • {Math.max(1, Math.ceil(words / 180))} menit baca</p>
       </header>
+      {track ? <div className="mt-6"><MusicPlayer track={track} /></div> : null}
       <section className="py-8">
-        <div className="rounded-2xl border bg-white p-6 shadow-[0_0_4rem_rgba(90,133,251,0.12)] md:p-8" style={{ borderColor: "var(--reader-border)" }}>
+        <div className="reader-article rounded-2xl border p-5 sm:p-8 md:p-10">
           <div className="reader-content" dangerouslySetInnerHTML={{ __html: safeContent }} />
         </div>
       </section>

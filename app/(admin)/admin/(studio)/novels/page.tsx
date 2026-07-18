@@ -1,0 +1,6 @@
+import { Plus } from "lucide-react";
+import ContentList from "@/components/admin/content-list";
+import { PageHeader } from "@/components/admin/admin-ui";
+import { prisma } from "@/lib/prisma";
+export const dynamic = "force-dynamic";
+export default async function NovelsPage() { const novels = await prisma.novel.findMany({ orderBy: { updatedAt: "desc" }, include: { _count: { select: { chapters: true } } } }); const items = novels.map((novel) => ({ id: novel.id, title: novel.title, slug: novel.slug, status: novel.status, updatedAt: novel.updatedAt.toISOString(), createdAt: novel.createdAt.toISOString(), detail: `${novel._count.chapters} chapter${novel.genre ? ` · ${novel.genre}` : ""}`, editHref: `/admin/novels/${novel.id}/edit`, chaptersHref: `/admin/novels/${novel.id}/chapters`, deleteEndpoint: `/api/admin/novels/${novel.id}`, deleteLabel: `novel ${novel.title}` })); return <div className="grid gap-6"><PageHeader title="Novel" description="Kelola seri novel dan chapter dalam ruang kerja terpisah." action={<a href="/admin/novels/new" className="inline-flex h-10 items-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-bold text-white"><Plus size={16} />Novel baru</a>} /><ContentList items={items} emptyTitle="Belum ada novel" emptyDescription="Buat novel pertama, lalu susun chapter-nya." /></div>; }

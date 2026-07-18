@@ -14,6 +14,20 @@ const imageUrlSchema = z
   .or(z.string().regex(/^\/assets\/[A-Za-z0-9/_.,-]+$/))
   .or(z.literal(""));
 
+const audioUrlSchema = z
+  .string()
+  .url()
+  .refine((value) => /^https?:\/\//i.test(value), "URL audio harus menggunakan HTTP atau HTTPS.")
+  .or(z.string().regex(/^\/uploads\/audio\/[A-Za-z0-9/_.,-]+$/))
+  .or(z.string().regex(/^\/assets\/audio\/[A-Za-z0-9/_.,-]+$/))
+  .or(z.literal(""));
+
+const musicFields = {
+  musicTitle: z.string().max(160).optional().default(""),
+  musicArtist: z.string().max(160).optional().default(""),
+  musicUrl: audioUrlSchema.optional().default("")
+};
+
 const slideTypeSchema = z.enum(["image", "text", "image-text"]);
 
 export const chapterSlideSchema = z.object({
@@ -44,7 +58,8 @@ export const novelSchema = z.object({
   summary: z.string().min(1),
   genre: z.string().optional().default(""),
   coverUrl: imageUrlSchema.optional().default(""),
-  status: publishStatusSchema
+  status: publishStatusSchema,
+  ...musicFields
 });
 
 export const chapterSchema = z.object({
@@ -53,8 +68,10 @@ export const chapterSchema = z.object({
   slug: z.string().optional().default(""),
   chapterNumber: z.coerce.number().int().positive(),
   content: z.string().optional().default(""),
+  thumbnailUrl: imageUrlSchema.optional().default(""),
   status: publishStatusSchema,
-  slides: z.array(chapterSlideSchema).optional().default([])
+  slides: z.array(chapterSlideSchema).optional().default([]),
+  ...musicFields
 });
 
 export const taxonomySchema = z.object({

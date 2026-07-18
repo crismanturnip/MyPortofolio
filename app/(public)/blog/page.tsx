@@ -1,4 +1,4 @@
-import { FileText } from "lucide-react";
+import { ArrowUpRight, FileText } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { blogFallbackImages, resolvePublicImageUrl } from "@/lib/public-images";
 
@@ -21,8 +21,8 @@ export default async function BlogListPage() {
   );
 
   return (
-    <section className="reader-bg mx-auto max-w-6xl px-4 py-12">
-      <div className="mb-10">
+    <section className="reader-bg reader-page mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
+      <div className="reader-reveal mb-10">
         <p className="reader-badge inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-bold uppercase tracking-[0.22em]">
           <FileText size={16} />
           Blog
@@ -37,11 +37,11 @@ export default async function BlogListPage() {
           <a
             key={blog.id}
             href={`/blog/${blog.slug}`}
-            className={`reader-surface group overflow-hidden rounded-2xl border transition hover:-translate-y-1 ${
+            className={`reader-surface reader-card-lift group overflow-hidden rounded-2xl border ${
               index === 0 ? "md:col-span-2 md:grid md:grid-cols-[1.05fr_0.95fr]" : ""
             }`}
           >
-            <img src={blog.thumbnailUrl} alt={blog.title} className="h-64 w-full object-cover md:h-full" />
+            <div className="overflow-hidden"><img src={blog.thumbnailUrl} alt={blog.title} className="reader-card-image h-56 w-full object-cover sm:h-64 md:h-full" /></div>
             <div className="p-6">
               <div className="flex flex-wrap gap-2">
                 {blog.categories.map(({ category }) => (
@@ -54,6 +54,7 @@ export default async function BlogListPage() {
               <h2 className="mt-4 text-2xl font-bold tracking-wide group-hover:text-[var(--reader-primary)]">{blog.title}</h2>
               <p className="reader-muted mt-3 line-clamp-3">{blog.excerpt || "Tanpa excerpt."}</p>
               <p className="reader-muted mt-6 text-sm font-semibold">{blog.publishedAt ? new Date(blog.publishedAt).toLocaleDateString("id-ID") : ""}</p>
+              <span className="reader-primary mt-4 inline-flex items-center gap-2 text-sm font-bold">Baca tulisan <ArrowUpRight className="reader-card-arrow" size={17} aria-hidden="true" /></span>
             </div>
           </a>
         ))}

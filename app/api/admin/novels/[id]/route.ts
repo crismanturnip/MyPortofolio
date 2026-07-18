@@ -40,6 +40,9 @@ export async function PATCH(request: Request, { params }: Props) {
       summary: parsed.data.summary,
       genre: parsed.data.genre || null,
       coverUrl: parsed.data.coverUrl || null,
+      musicTitle: parsed.data.musicTitle || null,
+      musicArtist: parsed.data.musicArtist || null,
+      musicUrl: parsed.data.musicUrl || null,
       status: parsed.data.status,
       publishedAt:
         parsed.data.status === "PUBLISHED"

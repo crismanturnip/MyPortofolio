@@ -1,7 +1,8 @@
-import { ArrowRight, BookOpen, Coffee, Feather, FileText, Heart, Quote, Sparkles } from "lucide-react";
+import { BookOpen, FileText, HeartHandshake, LibraryBig, Lightbulb, NotebookPen, Quote } from "lucide-react";
 import QuoteMusicPlayer from "@/components/quote-music-player";
 import { prisma } from "@/lib/prisma";
 import { blogFallbackImages, chapterFallbackImages, novelFallbackImages, resolvePublicImageUrl } from "@/lib/public-images";
+import { getPublicContentHref } from "@/lib/content-release";
 
 export const dynamic = "force-dynamic";
 
@@ -10,11 +11,6 @@ const heroImage = "/assets/images/img4.jpg";
 function formatDate(date?: Date | null) {
   if (!date) return "Belum dijadwalkan";
   return new Intl.DateTimeFormat("id-ID", { day: "2-digit", month: "short", year: "numeric" }).format(date);
-}
-
-function readingTime(html: string) {
-  const words = html.replace(/<[^>]+>/g, " ").trim().split(/\s+/).filter(Boolean).length;
-  return `${Math.max(1, Math.ceil(words / 180))} min read`;
 }
 
 function plainText(html: string) {
@@ -37,6 +33,13 @@ export default async function ReaderLandingPage() {
           where: { status: "PUBLISHED" },
           orderBy: { chapterNumber: "desc" },
           take: 3,
+          include: {
+            slides: {
+              where: { imageUrl: { not: null } },
+              orderBy: { order: "asc" },
+              take: 1,
+            },
+          },
         },
       },
     }),
@@ -54,25 +57,34 @@ export default async function ReaderLandingPage() {
   const featuredNovelCover = featuredNovel
     ? await resolvePublicImageUrl(featuredNovel.coverUrl, novelFallbackImages[1])
     : null;
+  const displayChapters = await Promise.all(
+    latestChapters.map(async (chapter, index) => ({
+      ...chapter,
+      thumbnailUrl: await resolvePublicImageUrl(
+        chapter.thumbnailUrl || chapter.slides[0]?.imageUrl,
+        chapterFallbackImages[index % chapterFallbackImages.length],
+      ),
+    })),
+  );
 
   return (
     <div className="reader-bg">
-      <section className="reader-hero px-4 py-20 md:py-28">
+      <section className="reader-hero reader-hero-stage px-4 py-16 md:py-24">
         <div className="mx-auto flex min-h-[500px] max-w-6xl items-center">
           <div className="max-w-2xl">
-            <h1 className="mt-7 text-[32px] font-bold leading-tight md:text-5xl">
+            <h1 className="reader-hero-title text-[32px] font-bold leading-tight md:text-5xl">
               Ruang sederhana bagi kata, kisah, dan
-              <span className="reader-accent"> segala yang dipikirkan</span>
+              <span className="reader-accent reader-hero-accent"> segala yang dipikirkan</span>
             </h1>
-            <p className="reader-muted mt-6 max-w-md text-base leading-8 md:text-lg">
+            <p className="reader-muted reader-hero-copy mt-6 max-w-md text-base leading-8 md:text-lg">
               Tempat pengalaman menjadi tulisan dan imajinasi tumbuh menjadi cerita
             </p>
-            <div className="mt-8 flex flex-wrap gap-4">
-              <a href="/blog" className="reader-button inline-flex h-12 items-center gap-2 rounded-lg border px-6 text-sm font-bold shadow-sm">
+            <div className="reader-hero-actions mt-8 flex flex-wrap gap-4">
+              <a href={getPublicContentHref("blog")} className="reader-button reader-hero-cta inline-flex h-12 items-center gap-2 rounded-lg border px-6 text-sm font-bold shadow-sm">
                 <BookOpen size={17} />
                 Baca Blog
               </a>
-              <a href="/novel" className="reader-button-secondary inline-flex h-12 items-center gap-2 rounded-lg border px-6 text-sm font-bold">
+              <a href={getPublicContentHref("novel")} className="reader-button-secondary reader-hero-cta reader-hero-cta-secondary inline-flex h-12 items-center gap-2 rounded-lg border px-6 text-sm font-bold">
                 <FileText size={17} />
                 Baca Novel
               </a>
@@ -81,29 +93,29 @@ export default async function ReaderLandingPage() {
         </div>
       </section>
 
-      <section className="reader-soft reader-feature-strip px-4 py-12">
-        <div className="mx-auto grid max-w-6xl gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <FeatureCard icon={<Coffee size={22} />} title="Personal Blog" text="Tulisan, pemikiran, dan pengalaman pribadi." href="/blog" action="Jelajahi Blog" />
-          <FeatureCard icon={<BookOpen size={22} />} title="Koleksi Novel" text="Kumpulan cerita fiksi dan dunia imajinasi." href="/novel" action="Jelajahi Novel" />
-          <FeatureCard icon={<Feather size={22} />} title="Cerita & Inspirasi" text="Ide, refleksi, dan hal-hal yang menginspirasi." href="/blog" action="Baca Sekarang" />
-          <FeatureCard icon={<Heart size={22} />} title="Dibuat dengan Hati" text="Setiap tulisan dibuat dengan niat dan cinta." href="#tentang" action="Tentang Saya" />
+      <section className="reader-soft reader-feature-strip reader-section-divider px-4 py-12">
+        <div className="reader-feature-grid mx-auto grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <FeatureCard number="01" tone="journal" icon={<NotebookPen size={23} />} title="Personal Blog" text="Tulisan, pemikiran, dan pengalaman pribadi." href={getPublicContentHref("blog")} action="Jelajahi Blog" />
+          <FeatureCard number="02" tone="novel" icon={<LibraryBig size={23} />} title="Koleksi Novel" text="Kumpulan cerita fiksi dan dunia imajinasi." href={getPublicContentHref("novel")} action="Jelajahi Novel" />
+          <FeatureCard number="03" tone="idea" icon={<Lightbulb size={23} />} title="Cerita & Inspirasi" text="Ide, refleksi, dan hal-hal yang menginspirasi." href={getPublicContentHref("blog")} action="Baca Sekarang" />
+          <FeatureCard number="04" tone="heart" icon={<HeartHandshake size={23} />} title="Dibuat dengan Hati" text="Setiap tulisan dibuat dengan niat dan cinta." href="#tentang" action="Tentang Saya" />
         </div>
       </section>
 
       <section className="mx-auto grid max-w-6xl gap-10 px-4 py-16 lg:grid-cols-[1.05fr_0.95fr]">
         <article>
-          <SectionTitle icon={<FileText size={18} />} title="Tulisan Terbaru" href="/blog" label="Lihat semua blog" />
+          <SectionTitle title="Tulisan Terbaru" href={getPublicContentHref("blog")} label="Lihat semua blog" />
           <div className="mt-8 grid gap-10">
             {displayBlogs.length === 0 ? <EmptyState text="Belum ada blog published." /> : null}
             {displayBlogs.map((blog, index) => (
-              <a key={blog.id} href={`/blog/${blog.slug}`} className="group grid gap-5 rounded-xl p-2 transition hover:bg-white/5 sm:grid-cols-[150px_1fr]">
+              <a key={blog.id} href={getPublicContentHref("blog", `/${blog.slug}`)} className="reader-card-link group grid gap-5 rounded-xl p-2 sm:grid-cols-[150px_1fr]">
                 <div className="aspect-[4/3] overflow-hidden rounded-lg bg-[var(--reader-surface-soft)]">
                   <img src={blog.thumbnailUrl} alt={blog.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                 </div>
                 <div className="py-1">
                   <h3 className="text-xl font-semibold leading-snug group-hover:text-[var(--reader-primary)]">{blog.title}</h3>
                   <p className="reader-muted mt-2 text-xs font-medium">
-                    {formatDate(blog.publishedAt)} <span className="px-2">•</span> {readingTime(blog.content)}
+                    {formatDate(blog.publishedAt)}
                   </p>
                   <p className="reader-muted mt-3 line-clamp-2 text-sm leading-7">{blog.excerpt || plainText(blog.content) || "Tanpa excerpt."}</p>
                 </div>
@@ -113,18 +125,18 @@ export default async function ReaderLandingPage() {
         </article>
 
         <article>
-          <SectionTitle icon={<BookOpen size={18} />} title="Novel Terbaru" href="/novel" label="Lihat semua novel" />
+          <SectionTitle title="Novel Terbaru" href={getPublicContentHref("novel")} label="Lihat semua novel" />
           {featuredNovel ? (
-            <div className="reader-surface mt-8 rounded-2xl border p-6">
+            <div className="reader-surface reader-card-lift mt-8 rounded-2xl border p-5 sm:p-6">
               <div className="grid gap-6 sm:grid-cols-[160px_1fr]">
                 <div className="aspect-[3/4] overflow-hidden rounded-lg bg-[var(--reader-surface-soft)] shadow-sm">
                   <img src={featuredNovelCover || novelFallbackImages[1]} alt={featuredNovel.title} className="h-full w-full object-cover" />
                 </div>
                 <div>
                   <h3 className="text-2xl font-semibold leading-tight">{featuredNovel.title}</h3>
-                  <p className="reader-cyan mt-2 text-xs font-bold">{featuredNovel.genre || "Novel"}</p>
+                  <p className="reader-novel-genre mt-2 text-sm font-medium">{featuredNovel.genre || "Novel"}</p>
                   <p className="reader-muted mt-4 line-clamp-3 text-sm leading-7">{featuredNovel.summary}</p>
-                  <a href={`/novel/${featuredNovel.slug}`} className="reader-button mt-5 inline-flex h-10 items-center gap-2 rounded-lg border px-4 text-sm font-bold">
+                  <a href={getPublicContentHref("novel", `/${featuredNovel.slug}`)} className="reader-novel-cta mt-5 inline-flex h-10 items-center rounded-lg border px-4 text-sm font-semibold">
                     Baca Sekarang
                   </a>
                   <p className="reader-muted mt-4 text-xs font-medium">
@@ -135,16 +147,15 @@ export default async function ReaderLandingPage() {
 
               <div className="mt-6 grid gap-4">
                 {latestChapters.length === 0 ? <EmptyState text="Belum ada chapter published." /> : null}
-                {latestChapters.map((chapter, index) => (
-                  <a key={chapter.id} href={`/novel/${featuredNovel.slug}/chapter/${chapter.slug}`} className="grid grid-cols-[56px_1fr_auto] items-center gap-4 rounded-lg p-2 transition hover:bg-white/5">
+                {displayChapters.map((chapter) => (
+                  <a key={chapter.id} href={getPublicContentHref("novel", `/${featuredNovel.slug}/chapter/${chapter.slug}`)} className="reader-chapter-link grid grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-3 rounded-lg p-2 sm:grid-cols-[56px_minmax(0,1fr)_auto] sm:gap-4">
                     <div className="h-14 w-14 overflow-hidden rounded-lg bg-[var(--reader-surface-soft)]">
-                      <img src={chapterFallbackImages[index % chapterFallbackImages.length]} alt={chapter.title} className="h-full w-full object-cover" />
+                      <img src={chapter.thumbnailUrl} alt={chapter.title} className="h-full w-full object-cover" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold">Bab {chapter.chapterNumber} - {chapter.title}</p>
                       <p className="reader-muted mt-1 line-clamp-1 text-xs">{plainText(chapter.content) || "Chapter novel."}</p>
                     </div>
-                    {index === 0 ? <span className="reader-badge rounded-full border px-3 py-1 text-xs font-bold">Baru</span> : null}
                   </a>
                 ))}
               </div>
@@ -176,29 +187,26 @@ export default async function ReaderLandingPage() {
   );
 }
 
-function SectionTitle({ icon, title, href, label }: { icon: React.ReactNode; title: string; href: string; label: string }) {
+function SectionTitle({ title, href, label }: { title: string; href: string; label: string }) {
   return (
     <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: "var(--reader-border)" }}>
       <h2 className="inline-flex items-center gap-2 text-base font-semibold">
-        {icon}
         {title}
       </h2>
-      <a href={href} className="reader-primary text-sm font-bold hover:text-[var(--reader-cyan)]">
-        {label} →
+      <a href={href} className="reader-view-all reader-primary text-sm font-bold">
+        {label}
       </a>
     </div>
   );
 }
 
-function FeatureCard({ icon, title, text, href, action }: { icon: React.ReactNode; title: string; text: string; href: string; action: string }) {
+function FeatureCard({ number, tone, icon, title, text, href, action }: { number: string; tone: "journal" | "novel" | "idea" | "heart"; icon: React.ReactNode; title: string; text: string; href: string; action: string }) {
   return (
-    <a href={href} className="reader-surface group rounded-2xl border p-6 transition hover:-translate-y-1">
-      <div className="reader-badge grid h-12 w-12 place-items-center rounded-full border">{icon}</div>
-      <h3 className="mt-5 text-lg font-semibold">{title}</h3>
+    <a href={href} className={`reader-feature-card reader-feature-${tone} reader-surface group rounded-lg border p-5`}>
+      <div className="flex items-start justify-between gap-4"><div className="reader-feature-icon grid h-12 w-12 place-items-center rounded-lg border">{icon}</div><span className="reader-feature-number">{number}</span></div>
+      <h3 className="mt-6 text-lg font-semibold">{title}</h3>
       <p className="reader-muted mt-2 min-h-11 text-sm leading-6">{text}</p>
-      <p className="reader-primary mt-4 inline-flex items-center gap-1 text-sm font-bold">
-        {action}
-      </p>
+      <p className="reader-feature-action mt-5 inline-flex items-center text-sm font-bold">{action}</p>
     </a>
   );
 }

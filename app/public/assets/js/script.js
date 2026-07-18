@@ -282,6 +282,19 @@ projectSwiper.on("slideChangeTransitionStart", () => {
 // Public content integration (Next.js Content Studio)
 // ======================
 const CONTENT_BASE = window.location.origin;
+let portfolioContentReleased = false;
+
+function getPortfolioContentHref(type, item) {
+  if (portfolioContentReleased) {
+    return `${CONTENT_BASE}/${type === "blog" ? "blog" : "novel"}/${encodeURIComponent(item.slug)}`;
+  }
+
+  const params = new URLSearchParams({
+    type,
+    title: item.title,
+  });
+  return `${CONTENT_BASE}/coming-soon?${params.toString()}`;
+}
 const publicBlogList = document.getElementById("public-blog-list");
 const publicNovelList = document.getElementById("public-novel-list");
 const allBlogLink = document.getElementById("all-blog-link");
@@ -394,17 +407,14 @@ function renderPublicCards(container, items, type) {
 
   container.innerHTML = items
     .map((item) => {
-      const href =
-        type === "blog"
-          ? `${CONTENT_BASE}/blog/${encodeURIComponent(item.slug)}`
-          : `${CONTENT_BASE}/novel/${encodeURIComponent(item.slug)}`;
+      const href = getPortfolioContentHref(type, item);
 
       return `
         <article class="blog-card dynamic-card">
           <span class="blog-label">Published</span>
           <h3>${escapeHtml(item.title)}</h3>
           <p>${escapeHtml(formatDate(item.updatedAt))}</p>
-          <a class="read-link" href="${href}" target="_blank" rel="noopener noreferrer">Baca Selengkapnya</a>
+          <a class="read-link" href="${href}">Baca Selengkapnya</a>
         </article>
       `;
     })
@@ -431,7 +441,7 @@ function renderWritingUniverse(container, items) {
 
   container.innerHTML = novels
     .map((item, index) => {
-      const href = `${CONTENT_BASE}/novel/${encodeURIComponent(item.slug)}`;
+      const href = getPortfolioContentHref("novel", item);
       const imageUrl = getAssetUrl(item.coverUrl);
       const fallbackImage = getFallbackImage("novel", index);
       const chapterCount = Number(item.chapterCount || 0);
@@ -451,7 +461,7 @@ function renderWritingUniverse(container, items) {
             <i>•</i>
             <span>${iconBook()} ${escapeHtml(chapterLabel)}</span>
           </div>
-          <a class="writing-link" href="${href}" target="_blank" rel="noopener noreferrer">
+          <a class="writing-link" href="${href}">
             Baca Selengkapnya
           </a>
         </article>
@@ -480,7 +490,7 @@ function renderBlogUniverse(container, items) {
 
   container.innerHTML = blogs
     .map((item, index) => {
-      const href = `${CONTENT_BASE}/blog/${encodeURIComponent(item.slug)}`;
+      const href = getPortfolioContentHref("blog", item);
       const imageUrl = getAssetUrl(item.thumbnailUrl);
       const fallbackImage = getFallbackImage("blog", index);
 
@@ -498,7 +508,7 @@ function renderBlogUniverse(container, items) {
             <i>•</i>
             <span>${iconBook()} Artikel</span>
           </div>
-          <a class="writing-link" href="${href}" target="_blank" rel="noopener noreferrer">
+          <a class="writing-link" href="${href}">
             Baca Selengkapnya
           </a>
         </article>
@@ -515,6 +525,7 @@ async function loadPublicContent() {
     }
     const result = await response.json();
     const items = Array.isArray(result.data) ? result.data : [];
+    portfolioContentReleased = result.contentReleased === true;
 
     renderBlogUniverse(
       publicBlogList,

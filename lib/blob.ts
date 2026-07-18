@@ -20,3 +20,21 @@ export async function uploadImageToBlob(file: File, folder: "covers" | "thumbnai
   const blob = await put(filename, file, { access: "public" });
   return blob.url;
 }
+
+export async function uploadAudioToBlob(file: File) {
+  const ext = file.name.split(".").pop()?.toLowerCase() || "mp3";
+  const filename = `audio/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    if (process.env.VERCEL) {
+      throw new Error("BLOB_READ_WRITE_TOKEN harus diatur untuk upload audio di Vercel.");
+    }
+    const uploadDir = path.join(process.cwd(), "public", "uploads", "audio");
+    await mkdir(uploadDir, { recursive: true });
+    await writeFile(path.join(process.cwd(), "public", "uploads", filename), Buffer.from(await file.arrayBuffer()));
+    return `/uploads/${filename}`;
+  }
+
+  const blob = await put(filename, file, { access: "public", contentType: file.type });
+  return blob.url;
+}

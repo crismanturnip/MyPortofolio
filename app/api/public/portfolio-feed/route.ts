@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { blogFallbackImages, novelFallbackImages, resolvePublicImageUrl } from "@/lib/public-images";
+import { PUBLIC_CONTENT_RELEASED } from "@/lib/content-release";
 
 export async function GET() {
   const [blogs, novels] = await Promise.all([
@@ -54,5 +55,5 @@ export async function GET() {
     }))))
   ].sort((a, b) => +new Date(b.updatedAt) - +new Date(a.updatedAt));
 
-  return NextResponse.json({ data });
+  return NextResponse.json({ data, contentReleased: PUBLIC_CONTENT_RELEASED });
 }
