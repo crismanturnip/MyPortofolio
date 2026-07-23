@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-labelledby="title description">
+  <title id="title">Thumbnail blog belum tersedia</title>
+  <desc id="description">Ilustrasi sederhana halaman tulisan dengan lanskap.</desc>
+  <rect width="800" height="600" fill="#eef7f2"/>
+  <rect x="190" y="105" width="420" height="390" rx="18" fill="#fff" stroke="#9bc5b5" stroke-width="12"/>
+  <path d="M250 390 335 300l72 72 58-58 85 76H250Z" fill="#c7e7da" stroke="#23715c" stroke-width="12" stroke-linejoin="round"/>
+  <circle cx="500" cy="215" r="38" fill="#f4cf73"/>
+  <path d="M250 175h155M250 215h105" fill="none" stroke="#23715c" stroke-width="14" stroke-linecap="round"/>
+</svg>

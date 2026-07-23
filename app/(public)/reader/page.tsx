@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { BookOpen, FileText, HeartHandshake, LibraryBig, Lightbulb, NotebookPen, Quote } from "lucide-react";
 import QuoteMusicPlayer from "@/components/quote-music-player";
 import { prisma } from "@/lib/prisma";
@@ -74,10 +75,10 @@ export default async function ReaderLandingPage() {
           <div className="max-w-2xl">
             <h1 className="reader-hero-title text-[32px] font-bold leading-tight md:text-5xl">
               Ruang sederhana bagi kata, kisah, dan
-              <span className="reader-accent reader-hero-accent"> segala yang dipikirkan</span>
+              <span className="reader-accent reader-hero-accent"> segala yang terpikirkan </span>
             </h1>
             <p className="reader-muted reader-hero-copy mt-6 max-w-md text-base leading-8 md:text-lg">
-              Sisakan ruang bagimu untuk menuangkan cerita. Terkadang, manusia hanya perlu bercerita, entah dimana atau dengan siapa anda bercerita
+              Sisakan waktu bagimu untuk menuangkan cerita. Terkadang, manusia hanya perlu bercerita, entah dimana atau dengan siapa anda bercerita
             </p>
             <div className="reader-hero-actions mt-8 flex flex-wrap gap-4">
               <a href={getPublicContentHref("blog")} className="reader-button reader-hero-cta inline-flex h-12 items-center gap-2 rounded-lg border px-6 text-sm font-bold shadow-sm">
@@ -95,10 +96,10 @@ export default async function ReaderLandingPage() {
 
       <section className="reader-soft reader-feature-strip reader-section-divider px-4 py-12">
         <div className="reader-feature-grid mx-auto grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <FeatureCard number="01" tone="journal" icon={<NotebookPen size={23} />} title="Untaian Kalimat Ringan" text="Menuangkan segala pikiran ke dalam sebuah kalimat adalah salah satu usaha untuk meringankan pikiran" href={getPublicContentHref("blog")} action="Jelajahi Untaian" />
-          <FeatureCard number="02" tone="novel" icon={<LibraryBig size={23} />} title="Beragam Cerita" text="Aku bingung membuat cerita apa, sungguh. Aku hanya memikirkan dia seorang" href={getPublicContentHref("novel")} action="Jelajahi Cerita" />
-          <FeatureCard number="03" tone="idea" icon={<Lightbulb size={23} />} title="Momen Kehidupan" text="Hidup itu berat, kamu hanya perlu menemukan seseorang yang pas untuk menemani. Lalu hidup akan terasa ringan" href={getPublicContentHref("blog")} action="Jelajahi Dunia" />
-          <FeatureCard number="04" tone="heart" icon={<HeartHandshake size={23} />} title="Tentang Saya" text="Aku adalah aku, bagaimana aku mencintaimu biarlah urusanku. Bagaimana kamu kepadaku, terserah itu urusanmu (Ayah Pidi Baiq)" href="#tentang" action="Tentang Saya" />
+          <FeatureCard icon={<NotebookPen />} title="Untaian Kalimat Ringan" text="Menuangkan segala pikiran ke dalam sebuah kalimat adalah salah satu usaha untuk meringankan pikiran" href={getPublicContentHref("blog")} action="Jelajahi Untaian" />
+          <FeatureCard icon={<LibraryBig />} title="Beragam Cerita" text="Aku bingung membuat cerita apa, sungguh. Aku hanya memikirkan dia seorang" href={getPublicContentHref("novel")} action="Jelajahi Cerita" />
+          <FeatureCard icon={<Lightbulb />} title="Momen Kehidupan" text="Hidup itu berat, kamu hanya perlu menemukan seseorang yang pas untuk menemani. Lalu hidup akan terasa ringan" href={getPublicContentHref("blog")} action="Jelajahi Dunia" />
+          <FeatureCard icon={<HeartHandshake />} title="Tentang Saya" text="Aku adalah aku, bagaimana aku mencintaimu biarlah urusanku. Bagaimana kamu kepadaku, terserah itu urusanmu (Ayah Pidi Baiq)" href="#tentang" action="Tentang Saya" />
         </div>
       </section>
 
@@ -200,13 +201,15 @@ function SectionTitle({ title, href, label }: { title: string; href: string; lab
   );
 }
 
-function FeatureCard({ number, tone, icon, title, text, href, action }: { number: string; tone: "journal" | "novel" | "idea" | "heart"; icon: React.ReactNode; title: string; text: string; href: string; action: string }) {
+function FeatureCard({ icon, title, text, href, action }: { icon: ReactNode; title: string; text: string; href: string; action: string }) {
   return (
-    <a href={href} className={`reader-feature-card reader-feature-${tone} reader-surface group rounded-lg border p-5`}>
-      <div className="flex items-start justify-between gap-4"><div className="reader-feature-icon grid h-12 w-12 place-items-center rounded-lg border">{icon}</div><span className="reader-feature-number">{number}</span></div>
-      <h3 className="mt-6 text-lg font-semibold">{title}</h3>
-      <p className="reader-muted mt-2 min-h-11 text-sm leading-6">{text}</p>
-      <p className="reader-feature-action mt-5 inline-flex items-center text-sm font-bold">{action}</p>
+    <a href={href} className="reader-feature-card reader-surface group flex flex-col rounded-lg border p-5">
+      <div className="reader-feature-heading">
+        <span className="reader-feature-icon" aria-hidden="true">{icon}</span>
+        <h3 className="reader-feature-title text-base font-semibold">{title}</h3>
+      </div>
+      <p className="reader-muted mt-4 min-h-11 text-sm leading-6">{text}</p>
+      <p className="reader-feature-action mt-auto pt-5 text-sm font-bold"><span>{action}</span></p>
     </a>
   );
 }
