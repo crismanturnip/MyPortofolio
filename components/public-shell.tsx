@@ -6,10 +6,10 @@ import { usePathname } from "next/navigation";
 import { getPublicContentHref } from "@/lib/content-release";
 
 const navItems = [
-  { label: "Beranda", href: "/reader" },
+  { label: "Beranda", href: "/ruangbaca" },
   { label: "Blog", href: getPublicContentHref("blog") },
   { label: "Novel", href: getPublicContentHref("novel") },
-  { label: "Tentang", href: "/reader#tentang" },
+  { label: "Tentang", href: "/ruangbaca#tentang" },
 ];
 
 export default function PublicShell({ children }: { children: React.ReactNode }) {
@@ -37,13 +37,13 @@ export default function PublicShell({ children }: { children: React.ReactNode })
     <div className={`reader-shell ${darkMode ? "reader-shell-dark" : ""}`}>
       <header className="reader-header sticky top-0 z-30 border-b">
         <div className="grid min-h-16 w-full min-w-0 grid-cols-[1fr_auto] items-center gap-3 px-6 sm:px-8 md:grid-cols-[1fr_auto_1fr] lg:px-12">
-          <a href="/reader" className="reader-logo inline-flex shrink-0 items-center gap-2 text-lg font-semibold tracking-normal sm:text-xl">
+          <a href="/ruangbaca" className="reader-logo inline-flex shrink-0 items-center gap-2 text-lg font-semibold tracking-normal sm:text-xl">
             Ruang Baca
           </a>
 
           <nav className="hidden items-center gap-7 text-sm font-medium md:flex">
             {navItems.map((item) => {
-              const active = item.href !== "/reader#tentang" && (pathname === item.href || (item.href !== "/reader" && pathname.startsWith(`${item.href}/`)));
+              const active = item.href !== "/ruangbaca#tentang" && (pathname === item.href || (item.href !== "/ruangbaca" && pathname.startsWith(`${item.href}/`)));
               return (
                 <a
                   key={item.href}
@@ -83,7 +83,7 @@ export default function PublicShell({ children }: { children: React.ReactNode })
           <div id="reader-mobile-menu" className="reader-mobile-menu mx-3 mb-3 rounded-2xl border p-3 shadow-lg md:hidden">
             <nav className="grid gap-2 text-sm font-semibold" aria-label="Navigasi mobile">
               {navItems.map((item) => {
-                const active = item.href !== "/reader#tentang" && (pathname === item.href || (item.href !== "/reader" && pathname.startsWith(`${item.href}/`)));
+                const active = item.href !== "/ruangbaca#tentang" && (pathname === item.href || (item.href !== "/ruangbaca" && pathname.startsWith(`${item.href}/`)));
                 return (
                   <a
                     key={item.href}
@@ -117,7 +117,7 @@ export default function PublicShell({ children }: { children: React.ReactNode })
       <footer className="reader-footer border-t reader-surface">
         <div className="grid w-full gap-5 px-5 py-5 sm:grid-cols-2 sm:px-7 lg:grid-cols-[minmax(18rem,1.05fr)_0.7fr_0.7fr_minmax(10rem,0.55fr)] lg:items-start lg:justify-between lg:px-10 xl:px-12">
           <div className="max-w-md sm:col-span-2 lg:col-span-1">
-            <a href="/reader" className="reader-logo inline-flex items-center gap-2 text-xl font-semibold tracking-normal">
+            <a href="/ruangbaca" className="reader-logo inline-flex items-center gap-2 text-xl font-semibold tracking-normal">
               Ruang Baca
             </a>
             <p className="reader-muted mt-2 max-w-sm text-sm leading-6">
@@ -128,7 +128,7 @@ export default function PublicShell({ children }: { children: React.ReactNode })
             </a>
           </div>
 
-          <FooterGroup title="Navigasi" items={[["Beranda", "/reader"], ["Blog", getPublicContentHref("blog")], ["Novel", getPublicContentHref("novel")], ["Tentang", "/reader#tentang"]]} />
+          <FooterGroup title="Navigasi" items={[["Beranda", "/ruangbaca"], ["Blog", getPublicContentHref("blog")], ["Novel", getPublicContentHref("novel")], ["Tentang", "/ruangbaca#tentang"]]} />
           <FooterGroup title="Kategori" items={[["Personal Blog", getPublicContentHref("blog")], ["Novel", getPublicContentHref("novel")], ["Cerita", getPublicContentHref("novel")], ["Inspirasi", getPublicContentHref("blog")]]} />
 
           <div className="w-full sm:w-fit lg:justify-self-end">

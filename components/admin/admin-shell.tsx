@@ -75,7 +75,7 @@ export default function AdminShell({ adminName, children }: { adminName: string;
           </a>
           <NavLinks pathname={pathname} />
           <div className="mt-auto border-t border-white/10 p-3">
-            <a href="/reader" target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm text-slate-300 hover:bg-white/10 hover:text-white"><ExternalLink size={17} />Lihat situs publik</a>
+            <a href="/ruangbaca" target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm text-slate-300 hover:bg-white/10 hover:text-white"><ExternalLink size={17} />Lihat situs publik</a>
             <button type="button" onClick={logout} disabled={loggingOut} className="mt-1 flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-sm text-slate-300 hover:bg-white/10 hover:text-white disabled:opacity-60"><LogOut size={17} />{loggingOut ? "Keluar..." : "Logout"}</button>
           </div>
         </div>

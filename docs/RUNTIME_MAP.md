@@ -52,8 +52,8 @@ Dokumen ini adalah peta sumber kebenaran untuk runtime website.
   Dilayani oleh `app/route.ts`, membaca `app/public/index.html`.
 - `/assets/[...path]`
   Dilayani oleh `app/assets/[...path]/route.ts`, membaca file dari `app/public/assets`.
-- `/reader`
-  Landing pembaca blog/novel dari `app/(public)/reader/page.tsx`.
+- `/ruangbaca`
+  Landing pembaca blog/novel dari `app/(public)/ruangbaca/page.tsx`.
 - `/blog`
   List blog published.
 - `/blog/[slug]`

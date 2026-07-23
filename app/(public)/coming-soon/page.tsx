@@ -33,7 +33,7 @@ export default async function ComingSoonPage({ searchParams }: Props) {
           <a href={returnHref} className="reader-button inline-flex min-h-11 items-center gap-2 rounded-lg border px-5 text-sm font-semibold">
             Kembali ke Portfolio
           </a>
-          <a href="/reader" className="reader-button-secondary inline-flex min-h-11 items-center gap-2 rounded-lg border px-5 text-sm font-medium">
+          <a href="/ruangbaca" className="reader-button-secondary inline-flex min-h-11 items-center gap-2 rounded-lg border px-5 text-sm font-medium">
             Buka Reader
           </a>
         </div>

@@ -5,7 +5,7 @@ Website personal Crisman yang menyatukan portfolio, ruang baca blog/novel, dan C
 Project ini memiliki tiga pengalaman utama:
 
 - Portfolio di `/` untuk memperkenalkan profil, pendidikan, galeri, sertifikat, proyek, blog, novel, dan kontak.
-- Reader publik di `/reader`, `/blog`, dan `/novel` untuk membaca artikel, novel, serta chapter yang sudah dipublikasikan.
+- Reader publik di `/ruangbaca`, `/blog`, dan `/novel` untuk membaca artikel, novel, serta chapter yang sudah dipublikasikan.
 - Content Studio di `/admin` untuk mengelola seluruh konten tanpa perlu mengubah kode secara manual.
 
 ## Daftar Isi
@@ -47,7 +47,7 @@ Project ini dibuat sebagai identitas digital Crisman. Portfolio memberikan gamba
 
 ### Reader Publik
 
-- Landing page `/reader` berisi artikel dan novel terbaru.
+- Landing page `/ruangbaca` berisi artikel dan novel terbaru.
 - Halaman daftar serta detail blog.
 - Halaman daftar serta detail novel.
 - Reader chapter biasa dan mode story slide.
@@ -81,7 +81,7 @@ Browser
   |                                      app/public/index.html
   |                                      app/public/assets/*
   |
-  +-- /reader, /blog, /novel ---------> Next.js public reader
+  +-- /ruangbaca, /blog, /novel ------> Next.js public reader
   |                                      Server Components + React UI
   |
   +-- /admin --------------------------> Next.js CMS admin
@@ -172,7 +172,7 @@ app/
 ### Rendering Strategy
 
 - `/` memakai `force-dynamic` route handler karena membaca file HTML portfolio.
-- `/reader`, `/blog`, dan `/novel` memakai `force-dynamic`; konten baru dari CMS muncul pada request berikutnya tanpa build ulang.
+- `/ruangbaca`, `/blog`, dan `/novel` memakai `force-dynamic`; konten baru dari CMS muncul pada request berikutnya tanpa build ulang.
 - Halaman detail menggunakan slug dan membaca data yang hanya berstatus `PUBLISHED`.
 - Form admin, theme reader, audio quotes, dan story reader memakai Client Components; daftar admin mengambil data awal melalui Server Components.
 - Halaman daftar/detail publik membaca database melalui Prisma di server untuk menjaga akses database tetap di backend.
@@ -322,7 +322,7 @@ PUBLISHED  -> tampil di reader dan API publik
 | URL | Deskripsi |
 | --- | --- |
 | `/` | Portfolio utama. |
-| `/reader` | Landing reader dan konten terbaru. |
+| `/ruangbaca` | Landing reader dan konten terbaru. |
 | `/blog` | Daftar blog published. |
 | `/blog/[slug]` | Detail blog published. |
 | `/novel` | Daftar novel published. |
@@ -461,7 +461,7 @@ npm run dev
 Buka:
 
 - Portfolio: `http://localhost:3000`
-- Reader: `http://localhost:3000/reader`
+- Reader: `http://localhost:3000/ruangbaca`
 - Admin login: `http://localhost:3000/admin/login`
 - Public feed: `http://localhost:3000/api/public/portfolio-feed`
 
@@ -498,7 +498,7 @@ npm run lint
 npm run build
 ```
 
-8. Setelah deploy, verifikasi `/`, `/reader`, `/blog`, `/novel`, `/admin/login`, dan upload media.
+8. Setelah deploy, verifikasi `/`, `/ruangbaca`, `/blog`, `/novel`, `/admin/login`, dan upload media.
 
 ### Build Manual
 
