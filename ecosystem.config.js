@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: "crismancode",
-      cwd: "/var/www/crismancode/app",
+      cwd: "/var/www/crismancode",
       script: "npm",
       args: "start",
       env: {
