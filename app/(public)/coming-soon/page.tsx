@@ -34,7 +34,7 @@ export default async function ComingSoonPage({ searchParams }: Props) {
             Kembali ke Portfolio
           </a>
           <a href="/ruangbaca" className="reader-button-secondary inline-flex min-h-11 items-center gap-2 rounded-lg border px-5 text-sm font-medium">
-            Buka Reader
+            Buka Ruang Baca
           </a>
         </div>
       </section>
