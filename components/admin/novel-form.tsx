@@ -11,7 +11,7 @@ import type { NovelEditorData, PublishStatus } from "@/components/admin/types";
 
 export default function NovelForm({ initial }: { initial?: NovelEditorData }) {
   const router = useRouter();
-  const [form, setForm] = useState({ title: initial?.title || "", slug: initial?.slug || "", summary: initial?.summary || "", genre: initial?.genre || "", coverUrl: initial?.coverUrl || "", musicTitle: initial?.musicTitle || "", musicArtist: initial?.musicArtist || "", musicUrl: initial?.musicUrl || "", status: (initial?.status || "DRAFT") as PublishStatus });
+  const [form, setForm] = useState({ title: initial?.title || "", slug: initial?.slug || "", summary: initial?.summary || "", genre: initial?.genre || "", coverUrl: initial?.coverUrl || "", musicTitle: initial?.musicTitle || "", musicArtist: initial?.musicArtist || "", musicUrl: initial?.musicUrl || "", musicVolume: initial?.musicVolume ?? 35, status: (initial?.status || "DRAFT") as PublishStatus });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -50,7 +50,7 @@ export default function NovelForm({ initial }: { initial?: NovelEditorData }) {
           <div className="flex items-center justify-between"><h2 className="font-black">Publikasi</h2><StatusBadge status={form.status} /></div>
           <label className="mt-4 block"><FieldLabel>Status</FieldLabel><select className={inputClass} value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value as PublishStatus })}><option value="DRAFT">Draft</option><option value="PUBLISHED">Published</option></select></label>
           <div className="mt-4 grid gap-2"><button type="button" disabled={saving || !form.title.trim() || !form.summary.trim()} onClick={() => save("DRAFT")} className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 font-bold disabled:opacity-60">{saving ? <LoaderCircle className="animate-spin" size={16} /> : <Save size={16} />}Simpan draft</button><button type="button" disabled={saving || !form.title.trim() || !form.summary.trim()} onClick={() => save("PUBLISHED")} className="h-10 rounded-lg bg-blue-600 font-bold text-white disabled:opacity-60">Publikasikan</button></div>
-          {initial ? <a href={`/admin/novels/${initial.id}/chapters`} className="mt-4 flex h-10 items-center justify-center rounded-lg bg-slate-950 text-sm font-bold text-white">Kelola chapter</a> : null}
+          {initial ? <a href={`/admin/novels/${initial.id}/chapters`} className="mt-4 flex h-10 items-center justify-center rounded-lg bg-slate-950 text-sm font-bold !text-white">Kelola chapter</a> : null}
         </aside>
       </div>
       <MusicFields title="Musik Novel" description="Musik ini menjadi fallback untuk chapter yang tidak memiliki musik sendiri. Tidak akan diputar otomatis." value={form} onChange={(music) => setForm({ ...form, ...music })} />

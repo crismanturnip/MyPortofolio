@@ -28,6 +28,7 @@ export type NovelEditorData = {
   musicTitle: string | null;
   musicArtist: string | null;
   musicUrl: string | null;
+  musicVolume: number;
   status: PublishStatus;
 };
 
@@ -54,6 +55,7 @@ export type ChapterEditorData = {
   musicTitle: string | null;
   musicArtist: string | null;
   musicUrl: string | null;
+  musicVolume: number;
   status: PublishStatus;
   slides: Array<{
     id: number;
@@ -67,4 +69,4 @@ export type ChapterEditorData = {
   }>;
 };
 
-export type NovelOption = { id: number; title: string; musicTitle?: string | null; musicArtist?: string | null; musicUrl?: string | null };
+export type NovelOption = { id: number; title: string; musicTitle?: string | null; musicArtist?: string | null; musicUrl?: string | null; musicVolume?: number };

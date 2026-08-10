@@ -38,6 +38,7 @@ type RichTextEditorProps = {
   onChange: (value: string) => void;
   onUploadImage?: (file: File) => Promise<string>;
   minHeightClassName?: string;
+  compact?: boolean;
 };
 
 const fontFamilies = [
@@ -193,6 +194,7 @@ export default function RichTextEditor({
   onChange,
   onUploadImage,
   minHeightClassName = "min-h-[390px]",
+  compact = false,
 }: RichTextEditorProps) {
   const [preview, setPreview] = useState(false);
   const editor = useEditor({
@@ -463,9 +465,9 @@ export default function RichTextEditor({
         </button>
       </div>
       {preview ? (
-        <div className="reader-content min-h-[390px] p-6" dangerouslySetInnerHTML={{ __html: editor.getHTML() }} />
+        <div className={`reader-content p-6 ${compact ? "min-h-[180px]" : "min-h-[390px]"}`} dangerouslySetInnerHTML={{ __html: editor.getHTML() }} />
       ) : (
-        <div className="cms-editor">
+        <div className={`cms-editor ${compact ? "cms-editor-compact" : ""}`}>
           <EditorContent editor={editor} />
         </div>
       )}

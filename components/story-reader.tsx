@@ -3,6 +3,7 @@
 import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, ChevronLeft, ChevronRight, List, Maximize2, RotateCcw, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MusicPlayer, { type MusicTrack } from "@/components/music-player";
+import { sanitizeRichText } from "@/lib/sanitize-html";
 
 type ReaderSlide = {
   id: number;
@@ -63,10 +64,8 @@ function progressLabel(storySlug: string, episodeSlug: string, namespace = "publ
 export default function StoryReader({ story, episode, slides, episodes, previous, next, music, progressNamespace = "public", backHref, chapterBasePath }: StoryReaderProps) {
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [sheetOpen, setSheetOpen] = useState(false);
   const endingIndex = slides.length;
   const isEnding = activeIndex === endingIndex;
-  const progress = slides.length > 0 ? ((Math.min(activeIndex, slides.length - 1) + 1) / slides.length) * 100 : 100;
   const storyHref = backHref || `/novel/${story.slug}`;
   const episodeHref = (slug: string) => chapterBasePath ? `${chapterBasePath}/${slug}` : `/novel/${story.slug}/chapter/${slug}`;
 
@@ -144,36 +143,16 @@ export default function StoryReader({ story, episode, slides, episodes, previous
   return (
     <div className="reader-bg min-h-[calc(100vh-4rem)] px-3 py-4 sm:px-5 md:px-6 md:py-8">
       <div className="mx-auto flex w-full max-w-[560px] flex-col gap-4 md:max-w-[640px] md:gap-5 xl:max-w-[680px]">
-        <header className="reader-surface sticky top-[4.75rem] z-20 rounded-2xl border p-3 shadow-sm md:top-24">
-          <div className="flex items-center justify-between gap-3">
-            <a href={storyHref} className="reader-button-secondary grid h-10 w-10 shrink-0 place-items-center rounded-xl border" aria-label="Kembali ke daftar episode">
-              <ArrowLeft size={18} />
-            </a>
-            <div className="min-w-0 flex-1 text-center">
-              <p className="truncate text-sm font-semibold">{story.title}</p>
-              <p className="reader-muted truncate text-xs">Episode {episode.chapterNumber}: {episode.title}</p>
-            </div>
-            <button type="button" onClick={() => setSheetOpen(true)} className="reader-button-secondary grid h-10 w-10 shrink-0 place-items-center rounded-xl border" aria-label="Buka daftar episode">
-              <List size={18} />
-            </button>
-            <button type="button" onClick={enterFullscreen} className="reader-button-secondary hidden h-10 w-10 shrink-0 place-items-center rounded-xl border sm:grid" aria-label="Mode layar penuh">
-              <Maximize2 size={17} />
-            </button>
-          </div>
-        </header>
+        <ReaderChapterHeader story={story} episode={episode} episodes={episodes} progressNamespace={progressNamespace} backHref={backHref} chapterBasePath={chapterBasePath} onFullscreen={enterFullscreen} />
 
-        <section className="reader-surface rounded-2xl border p-4 sm:p-5">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="reader-cyan text-xs font-bold uppercase tracking-widest">AU Reader</p>
-              <h1 className="mt-1 text-xl font-semibold leading-tight sm:text-2xl">{episode.title}</h1>
+        <section className="reader-surface rounded-2xl border px-4 py-3.5 sm:px-5 sm:py-4">
+          <div className="grid grid-cols-[3rem_minmax(0,1fr)_3rem] items-center gap-2">
+            <span aria-hidden="true" />
+            <div className="min-w-0 text-center">
+              <p className="reader-muted text-[0.65rem] font-semibold uppercase tracking-[0.18em]">Chapter {episode.chapterNumber}</p>
+              <h1 className="mt-1 truncate text-lg font-bold leading-tight tracking-wide sm:text-xl">{episode.title}</h1>
             </div>
-            <div className="reader-button-secondary shrink-0 rounded-full border px-3 py-1 text-xs font-semibold">
-              {isEnding ? "Selesai" : `${Math.min(activeIndex + 1, slides.length)} / ${slides.length}`}
-            </div>
-          </div>
-          <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
-            <div className="h-full rounded-full bg-[var(--reader-cyan)] transition-all duration-300" style={{ width: `${isEnding ? 100 : progress}%` }} />
+            <span className="reader-muted justify-self-end text-xs font-semibold tabular-nums">{Math.min(activeIndex + 1, slides.length)}/{slides.length}</span>
           </div>
         </section>
 
@@ -192,7 +171,7 @@ export default function StoryReader({ story, episode, slides, episodes, previous
 
           <div
             ref={viewportRef}
-            className="story-reader-scroll flex h-[min(70vh,740px)] min-h-[520px] snap-x snap-mandatory overflow-x-auto overflow-y-hidden rounded-2xl border border-[var(--reader-border)] bg-black/10 [scrollbar-width:none] [touch-action:pan-x] max-sm:h-[calc(100vh-13rem)] max-sm:min-h-[500px]"
+            className="story-reader-scroll flex h-[min(70vh,740px)] min-h-[520px] snap-x snap-mandatory items-start overflow-x-auto overflow-y-hidden rounded-2xl border border-[var(--reader-border)] bg-black/10 [scrollbar-width:none] [touch-action:pan-x_pan-y] max-sm:h-auto max-sm:min-h-0"
             aria-label="Area slide cerita"
           >
             {slides.map((slide) => (
@@ -212,52 +191,57 @@ export default function StoryReader({ story, episode, slides, episodes, previous
           </button>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
             disabled={activeIndex === 0}
             onClick={() => scrollToIndex(activeIndex - 1)}
-            className="reader-button-secondary inline-flex h-12 items-center justify-center gap-2 rounded-xl border text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-45"
+            className="reader-button-secondary inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border px-2 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-45 sm:text-sm"
           >
             <ChevronLeft size={18} />
             Sebelumnya
           </button>
           {isEnding ? (
             next ? (
-              <a href={episodeHref(next.slug)} className="reader-button inline-flex h-12 items-center justify-center gap-2 rounded-xl border text-sm font-semibold">
+              <a href={episodeHref(next.slug)} className="reader-button inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border px-2 text-xs font-semibold sm:text-sm">
                 Episode Berikutnya
                 <ArrowRight size={18} />
               </a>
             ) : (
-              <a href={storyHref} className="reader-button inline-flex h-12 items-center justify-center gap-2 rounded-xl border text-sm font-semibold">
+              <a href={storyHref} className="reader-button inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border px-2 text-xs font-semibold sm:text-sm">
                 Daftar Episode
               </a>
             )
           ) : (
-            <button type="button" onClick={() => scrollToIndex(activeIndex + 1)} className="reader-button inline-flex h-12 items-center justify-center gap-2 rounded-xl border text-sm font-semibold">
+            <button type="button" onClick={() => scrollToIndex(activeIndex + 1)} className="reader-button inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border px-2 text-xs font-semibold sm:text-sm">
               {activeIndex === slides.length - 1 ? "Selesai" : "Berikutnya"}
               <ChevronRight size={18} />
             </button>
           )}
         </div>
 
-        <nav className="grid gap-3 sm:grid-cols-2">
-          {previous ? <EpisodeNavCard label="Sebelumnya" href={episodeHref(previous.slug)} episode={previous} /> : <div />}
-          {next ? <EpisodeNavCard label="Berikutnya" href={episodeHref(next.slug)} episode={next} alignRight /> : null}
-        </nav>
       </div>
 
-      <EpisodeListSheet
-        open={sheetOpen}
-        onClose={() => setSheetOpen(false)}
-        storySlug={story.slug}
-        progressNamespace={progressNamespace}
-        episodeHref={episodeHref}
-        currentSlug={episode.slug}
-        episodes={episodes}
-      />
     </div>
   );
+}
+
+export function ReaderChapterHeader({ story, episode, episodes, progressNamespace = "public", backHref, chapterBasePath, onFullscreen }: Pick<StoryReaderProps, "story" | "episode" | "episodes" | "progressNamespace" | "backHref" | "chapterBasePath"> & { onFullscreen?: () => void }) {
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const storyHref = backHref || `/novel/${story.slug}`;
+  const episodeHref = (slug: string) => chapterBasePath ? `${chapterBasePath}/${slug}` : `/novel/${story.slug}/chapter/${slug}`;
+
+  return <>
+    <header className="reader-surface sticky top-[4.75rem] z-20 rounded-2xl border p-3 shadow-sm md:top-24">
+      <div className="flex items-center justify-between gap-3">
+        <a href={storyHref} className="reader-button-secondary grid h-10 w-10 shrink-0 place-items-center rounded-xl border" aria-label="Kembali ke daftar episode"><ArrowLeft size={18} /></a>
+        <div className="min-w-0 flex-1 text-center"><p className="truncate text-sm font-semibold">{story.title}</p><p className="reader-muted truncate text-xs">Episode {episode.chapterNumber}: {episode.title}</p></div>
+        <button type="button" onClick={() => setSheetOpen(true)} className="reader-button-secondary grid h-10 w-10 shrink-0 place-items-center rounded-xl border" aria-label="Buka daftar episode"><List size={18} /></button>
+        {onFullscreen ? <button type="button" onClick={onFullscreen} className="reader-button-secondary hidden h-10 w-10 shrink-0 place-items-center rounded-xl border sm:grid" aria-label="Mode layar penuh"><Maximize2 size={17} /></button> : null}
+      </div>
+    </header>
+    <EpisodeListSheet open={sheetOpen} onClose={() => setSheetOpen(false)} storySlug={story.slug} progressNamespace={progressNamespace} episodeHref={episodeHref} currentSlug={episode.slug} episodes={episodes} />
+  </>;
 }
 
 function StorySlide({ slide }: { slide: ReaderSlide }) {
@@ -266,17 +250,17 @@ function StorySlide({ slide }: { slide: ReaderSlide }) {
   const layout = hasImage && hasText ? "image-text" : hasImage ? "image" : "text";
 
   return (
-    <article className="flex min-w-full snap-center snap-always flex-col overflow-hidden bg-[var(--reader-surface-soft)]">
+    <article className="flex min-w-full snap-center snap-always flex-col overflow-hidden bg-[var(--reader-surface-soft)] max-sm:self-start max-sm:overflow-visible">
       {hasImage ? (
-        <div className={`${layout === "image-text" ? "h-[55%] border-b sm:h-[58%]" : "min-h-0 flex-1"} grid overflow-hidden border-[var(--reader-border)] bg-black/5 p-2 sm:p-3`}>
-          <img src={slide.imageUrl || ""} alt={slide.altText || slide.title || slide.caption || "Slide cerita"} className="h-full max-h-full w-full max-w-full place-self-center rounded-xl object-contain shadow-sm sm:rounded-2xl" loading="lazy" />
+        <div className={`${layout === "image-text" ? "h-[55%] border-b sm:h-[58%] max-sm:h-auto" : "min-h-0 flex-1"} grid overflow-hidden border-[var(--reader-border)] bg-black/5 p-2 sm:p-3`}>
+          <img src={slide.imageUrl || ""} alt={slide.altText || slide.title || slide.caption || "Slide cerita"} className="h-full max-h-full w-full max-w-full place-self-center rounded-xl object-contain shadow-sm max-sm:max-h-[52vh] max-sm:min-h-0 sm:rounded-2xl" loading="lazy" />
         </div>
       ) : null}
       {hasText ? (
-        <div className={`${layout === "text" ? "grid flex-1 place-items-center" : "min-h-0 flex-1 overflow-y-auto"} p-4 sm:p-5`}>
+        <div className={`${layout === "text" ? "grid flex-1 place-items-center" : "min-h-0 flex-1 overflow-y-auto max-sm:overflow-visible"} p-4 sm:p-5`}>
           <div className="w-full rounded-2xl bg-[var(--reader-surface-soft)]">
             {slide.title ? <h2 className="text-lg font-semibold leading-tight sm:text-xl">{slide.title}</h2> : null}
-            {slide.content ? <p className="reader-muted mt-3 whitespace-pre-wrap text-sm leading-7 sm:text-base sm:leading-8">{slide.content}</p> : null}
+            {slide.content ? <div className="reader-content reader-muted mt-3 text-sm leading-7 sm:text-base sm:leading-8" dangerouslySetInnerHTML={{ __html: sanitizeRichText(slide.content) }} /> : null}
             {slide.caption ? <p className="reader-cyan mt-4 text-sm font-semibold">{slide.caption}</p> : null}
           </div>
         </div>
@@ -310,15 +294,6 @@ function CompletionCard({ storyHref, episodeHref, next, onReplay }: { storyHref:
         </div>
       </div>
     </article>
-  );
-}
-
-function EpisodeNavCard({ label, href, episode, alignRight }: { label: string; href: string; episode: ReaderEpisode; alignRight?: boolean }) {
-  return (
-    <a href={href} className={`reader-surface rounded-2xl border p-4 ${alignRight ? "text-right" : ""}`}>
-      <span className="reader-cyan text-xs font-semibold uppercase tracking-widest">{label}</span>
-      <p className="mt-1 font-semibold">Ch {episode.chapterNumber}: {episode.title}</p>
-    </a>
   );
 }
 

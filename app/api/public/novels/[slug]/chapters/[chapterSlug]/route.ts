@@ -16,7 +16,7 @@ export async function GET(_request: Request, { params }: Props) {
       }
     },
     include: {
-      novel: { select: { title: true, slug: true, musicTitle: true, musicArtist: true, musicUrl: true } },
+      novel: { select: { title: true, slug: true, musicTitle: true, musicArtist: true, musicUrl: true, musicVolume: true } },
       slides: { orderBy: { order: "asc" } }
     }
   });

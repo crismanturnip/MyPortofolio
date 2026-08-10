@@ -40,7 +40,7 @@ export default async function NovelDetailPage({ params }: Props) {
             {firstChapter ? <a href={`/novel/${novel.slug}/chapter/${firstChapter.slug}`} className="reader-button rounded-xl border px-5 py-3 text-sm font-black">Mulai Membaca</a> : null}
             <span className="reader-button-secondary inline-flex items-center gap-2 rounded-xl border px-5 py-3 text-sm font-bold"><CheckCircle2 size={16} aria-hidden="true" />Published · {novel.chapters.length} chapter</span>
           </div>
-          {novel.musicUrl ? <div className="mt-6 max-w-2xl"><MusicPlayer track={{ title: novel.musicTitle, artist: novel.musicArtist, url: novel.musicUrl, source: "novel" }} /></div> : null}
+          {novel.musicUrl ? <div className="mt-6 max-w-2xl"><MusicPlayer track={{ title: novel.musicTitle, artist: novel.musicArtist, url: novel.musicUrl, volume: novel.musicVolume, source: "novel" }} /></div> : null}
         </div>
       </section>
 

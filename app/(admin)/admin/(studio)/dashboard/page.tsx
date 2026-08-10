@@ -38,4 +38,4 @@ function SummaryCard({ icon, label, count, draft, href }: { icon: React.ReactNod
   return <a href={href} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-blue-300 hover:shadow-md"><div className="flex items-center justify-between text-slate-500"><span className="grid h-10 w-10 place-items-center rounded-lg bg-slate-100 text-slate-800">{icon}</span><span className="text-xs font-bold">{draft} draft</span></div><p className="mt-5 text-3xl font-black text-slate-950">{count}</p><p className="text-sm font-bold text-slate-500">{label}</p></a>;
 }
 
-function QuickLink({ href, label }: { href: string; label: string }) { return <a href={href} className="inline-flex h-10 items-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-bold text-white"><Plus size={16} />{label}</a>; }
+function QuickLink({ href, label }: { href: string; label: string }) { return <a href={href} className="inline-flex h-10 items-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-bold !text-white"><Plus size={16} />{label}</a>; }

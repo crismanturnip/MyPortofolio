@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { NextResponse } from "next/server";
+import { getLocalUploadRoot } from "@/lib/upload-path";
 
 type Props = { params: Promise<{ path: string[] }> };
 
@@ -25,7 +26,7 @@ export async function GET(_request: Request, { params }: Props) {
     return NextResponse.json({ message: "Upload tidak valid." }, { status: 400 });
   }
 
-  const uploadRoot = path.resolve(process.cwd(), "public", "uploads");
+  const uploadRoot = getLocalUploadRoot();
   const filePath = path.resolve(uploadRoot, ...segments);
   if (!filePath.startsWith(`${uploadRoot}${path.sep}`)) {
     return NextResponse.json({ message: "Upload tidak valid." }, { status: 400 });

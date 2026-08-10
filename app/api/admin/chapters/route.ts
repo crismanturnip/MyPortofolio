@@ -55,6 +55,7 @@ export async function POST(request: Request) {
       musicTitle: parsed.data.musicTitle || null,
       musicArtist: parsed.data.musicArtist || null,
       musicUrl: parsed.data.musicUrl || null,
+      musicVolume: parsed.data.musicVolume,
       status: parsed.data.status,
       publishedAt: parsed.data.status === "PUBLISHED" ? new Date() : null,
       slides: {

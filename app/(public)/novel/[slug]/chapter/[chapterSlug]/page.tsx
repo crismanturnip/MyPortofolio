@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import StoryReader from "@/components/story-reader";
+import StoryReader, { ReaderChapterHeader } from "@/components/story-reader";
 import { sanitizeRichText } from "@/lib/sanitize-html";
 import MusicPlayer, { type MusicTrack } from "@/components/music-player";
 
@@ -54,9 +54,9 @@ export default async function ChapterDetailPage({ params }: Props) {
     slideCount: item.slides.length,
   }));
   const track: MusicTrack | null = chapter.musicUrl
-    ? { title: chapter.musicTitle, artist: chapter.musicArtist, url: chapter.musicUrl, source: "chapter" }
+    ? { title: chapter.musicTitle, artist: chapter.musicArtist, url: chapter.musicUrl, volume: chapter.musicVolume, source: "chapter" }
     : chapter.novel.musicUrl
-      ? { title: chapter.novel.musicTitle, artist: chapter.novel.musicArtist, url: chapter.novel.musicUrl, source: "novel" }
+      ? { title: chapter.novel.musicTitle, artist: chapter.novel.musicArtist, url: chapter.novel.musicUrl, volume: chapter.novel.musicVolume, source: "novel" }
       : null;
 
   if (chapter.slides.length > 0) {
@@ -78,6 +78,7 @@ export default async function ChapterDetailPage({ params }: Props) {
 
   return (
     <article className="reader-page mx-auto max-w-[780px] px-4 py-8 sm:px-6 sm:py-12">
+      <ReaderChapterHeader story={{ title: chapter.novel.title, slug: chapter.novel.slug }} episode={{ title: chapter.title, slug: chapter.slug, chapterNumber: chapter.chapterNumber }} episodes={episodes} />
       <a href={`/novel/${chapter.novel.slug}`} className="reader-primary text-sm font-bold">← Kembali ke detail novel</a>
       <header className="mt-8 border-b pb-8 text-center" style={{ borderColor: "var(--reader-border)" }}>
         <p className="reader-muted text-sm font-bold uppercase tracking-[0.22em]">{chapter.novel.title}</p>
@@ -90,20 +91,6 @@ export default async function ChapterDetailPage({ params }: Props) {
           <div className="reader-content" dangerouslySetInnerHTML={{ __html: safeContent }} />
         </div>
       </section>
-      <nav className="grid gap-3 border-t pt-8 sm:grid-cols-2" style={{ borderColor: "var(--reader-border)" }}>
-        {previous ? (
-          <a href={`/novel/${chapter.novel.slug}/chapter/${previous.slug}`} className="reader-surface rounded-2xl border p-4">
-            <span className="reader-cyan text-xs font-bold uppercase tracking-widest">Sebelumnya</span>
-            <p className="mt-1 font-black">Ch {previous.chapterNumber}: {previous.title}</p>
-          </a>
-        ) : <div />}
-        {next ? (
-          <a href={`/novel/${chapter.novel.slug}/chapter/${next.slug}`} className="reader-surface rounded-2xl border p-4 text-right">
-            <span className="reader-cyan text-xs font-bold uppercase tracking-widest">Berikutnya</span>
-            <p className="mt-1 font-black">Ch {next.chapterNumber}: {next.title}</p>
-          </a>
-        ) : null}
-      </nav>
     </article>
   );
 }

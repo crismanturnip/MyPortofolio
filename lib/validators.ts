@@ -25,7 +25,8 @@ const audioUrlSchema = z
 const musicFields = {
   musicTitle: z.string().max(160).optional().default(""),
   musicArtist: z.string().max(160).optional().default(""),
-  musicUrl: audioUrlSchema.optional().default("")
+  musicUrl: audioUrlSchema.optional().default(""),
+  musicVolume: z.coerce.number().int().min(0).max(100).optional().default(35)
 };
 
 const slideTypeSchema = z.enum(["image", "text", "image-text"]);

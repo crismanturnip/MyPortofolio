@@ -4,15 +4,20 @@ import { uploadAudioToBlob, uploadImageToBlob } from "@/lib/blob";
 
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_SIZE = 2 * 1024 * 1024;
-const AUDIO_TYPES = new Set(["audio/mpeg", "audio/mp3", "audio/mp4", "audio/x-m4a", "audio/ogg"]);
 const AUDIO_EXTENSIONS = new Set(["mp3", "m4a", "ogg"]);
 const MAX_AUDIO_SIZE = 12 * 1024 * 1024;
 
-async function hasValidAudioSignature(file: File, extension: string) {
-  const bytes = new Uint8Array(await file.slice(0, 16).arrayBuffer());
-  if (extension === "ogg") return String.fromCharCode(...bytes.slice(0, 4)) === "OggS";
-  if (extension === "m4a") return String.fromCharCode(...bytes.slice(4, 8)) === "ftyp";
-  return String.fromCharCode(...bytes.slice(0, 3)) === "ID3" || (bytes[0] === 0xff && (bytes[1] & 0xe0) === 0xe0);
+type AudioFormat = "mp3" | "m4a" | "ogg";
+
+async function detectAudioFormat(file: File): Promise<AudioFormat | null> {
+  const bytes = new Uint8Array(await file.slice(0, 4096).arrayBuffer());
+  if (String.fromCharCode(...bytes.slice(0, 4)) === "OggS") return "ogg";
+  if (String.fromCharCode(...bytes.slice(4, 8)) === "ftyp") return "m4a";
+  if (String.fromCharCode(...bytes.slice(0, 3)) === "ID3") return "mp3";
+  for (let index = 0; index < bytes.length - 1; index += 1) {
+    if (bytes[index] === 0xff && (bytes[index + 1] & 0xe0) === 0xe0) return "mp3";
+  }
+  return null;
 }
 
 export async function POST(request: Request) {
@@ -31,18 +36,20 @@ export async function POST(request: Request) {
 
   if (kind === "audio") {
     const extension = file.name.split(".").pop()?.toLowerCase() || "";
-    if (!AUDIO_TYPES.has(file.type) || !AUDIO_EXTENSIONS.has(extension)) {
+    if (!AUDIO_EXTENSIONS.has(extension)) {
       return NextResponse.json({ message: "Format audio harus MP3, M4A, atau OGG." }, { status: 400 });
     }
     if (file.size > MAX_AUDIO_SIZE) {
       return NextResponse.json({ message: "Maksimal ukuran audio 12 MB." }, { status: 400 });
     }
-    if (!(await hasValidAudioSignature(file, extension))) {
+    const detectedFormat = await detectAudioFormat(file);
+    if (!detectedFormat) {
       return NextResponse.json({ message: "Isi file tidak cocok dengan format audio." }, { status: 400 });
     }
     try {
-      const url = await uploadAudioToBlob(file);
-      return NextResponse.json({ message: "Upload audio berhasil.", data: { url } });
+      const url = await uploadAudioToBlob(file, detectedFormat);
+      const normalized = extension !== detectedFormat;
+      return NextResponse.json({ message: normalized ? `Upload berhasil. Format dikenali sebagai ${detectedFormat.toUpperCase()}.` : "Upload audio berhasil.", data: { url, format: detectedFormat, normalized } });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Upload audio gagal.";
       return NextResponse.json({ message }, { status: 500 });

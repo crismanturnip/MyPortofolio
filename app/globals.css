@@ -308,7 +308,16 @@ body {
 .reader-view-all:hover::after, .reader-view-all:focus-visible::after { transform: scaleX(1); }
 .reader-view-all:active { transform: translateY(0) scale(0.96); }
 
-.reader-music-player { width: 100%; min-width: 0; overflow: hidden; border: 1px solid var(--reader-border); border-radius: 0.75rem; background: color-mix(in srgb, var(--reader-surface) 94%, var(--reader-primary) 6%); box-shadow: var(--reader-shadow); color: var(--reader-text); padding: 0.9rem; }
+.reader-music-player { width: fit-content; max-width: 100%; min-width: 0; color: var(--reader-text); }
+.reader-music-prompt { display: flex; width: auto; max-width: 100%; min-height: 3rem; align-items: center; gap: 0.65rem; border: 1px solid color-mix(in srgb, var(--reader-primary) 32%, var(--reader-border)); border-radius: 999px; background: color-mix(in srgb, var(--reader-surface) 92%, var(--reader-primary) 8%); color: var(--reader-text); padding: 0.35rem 0.55rem 0.35rem 0.4rem; box-shadow: 0 8px 22px color-mix(in srgb, var(--reader-primary) 12%, transparent); transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease; }
+.reader-music-prompt:hover, .reader-music-prompt:focus-visible { transform: translateY(-2px); border-color: var(--reader-cyan); background: color-mix(in srgb, var(--reader-surface) 85%, var(--reader-primary) 15%); }
+.reader-music-prompt:active { transform: scale(0.97); }
+.reader-music-prompt.is-playing { border-color: color-mix(in srgb, var(--reader-cyan) 65%, var(--reader-border)); }
+.reader-music-prompt-icon { display: grid; width: 2.2rem; height: 2.2rem; flex: 0 0 2.2rem; place-items: center; border-radius: 999px; background: var(--reader-primary); color: #fff; }
+.reader-music-prompt-copy { display: grid; min-width: 0; text-align: left; }
+.reader-music-prompt-copy strong { overflow: hidden; font-size: 0.76rem; line-height: 1.1rem; text-overflow: ellipsis; white-space: nowrap; }
+.reader-music-prompt-copy small { overflow: hidden; max-width: 14rem; color: var(--reader-muted); font-size: 0.62rem; line-height: 0.9rem; text-overflow: ellipsis; white-space: nowrap; }
+.reader-music-prompt-play { flex: 0 0 auto; margin-right: 0.25rem; color: var(--reader-primary); }
 .reader-music-main { display: flex; min-width: 0; align-items: center; gap: 0.75rem; }
 .reader-music-toggle { display: grid; width: 2.75rem; height: 2.75rem; flex: 0 0 auto; place-items: center; border: 1px solid color-mix(in srgb, var(--reader-primary) 45%, var(--reader-border)); border-radius: 999px; background: var(--reader-primary); color: #fff; transition: transform 0.2s ease, background 0.2s ease; }
 .reader-music-toggle:hover, .reader-music-toggle:focus-visible { transform: scale(1.06); background: var(--reader-primary-strong); }
@@ -332,10 +341,9 @@ body {
 .reader-shell :where(a, button, input, select, textarea):focus-visible { outline: 3px solid color-mix(in srgb, var(--reader-cyan) 65%, transparent); outline-offset: 3px; }
 
 @media (max-width: 639px) {
-  .reader-music-player { padding: 0.75rem; }
-  .reader-music-controls { grid-template-columns: 2.4rem minmax(0, 1fr) 2.4rem; }
-  .reader-music-volume { display: none; }
-  .reader-music-compact .reader-equalizer { display: none; }
+  .reader-music-prompt { min-height: 2.75rem; }
+  .reader-music-prompt-icon { width: 2rem; height: 2rem; flex-basis: 2rem; }
+  .reader-music-prompt-copy small { max-width: 11rem; }
 }
 
 @media (max-width: 359px) {
@@ -823,6 +831,10 @@ select:disabled {
   min-height: 390px;
   outline: none;
   padding: 1.25rem;
+}
+
+.cms-editor-compact .ProseMirror {
+  min-height: 180px;
 }
 
 .cms-editor .ProseMirror p {
