@@ -41,7 +41,7 @@ export default function MusicPlayer({ track, compact = false }: { track: MusicTr
   }
 
   return <section className={`reader-music-player ${compact ? "reader-music-compact" : ""}`} aria-label="Pemutar musik">
-    <audio ref={audioRef} src={track.url} preload="metadata" onWaiting={() => setLoading(true)} onCanPlay={() => setLoading(false)} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => setPlaying(false)} onError={() => { setError("Audio gagal dimuat."); setLoading(false); setPlaying(false); }} />
+    <audio ref={audioRef} src={track.url} preload="metadata" loop onWaiting={() => setLoading(true)} onCanPlay={() => setLoading(false)} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onError={() => { setError("Audio gagal dimuat."); setLoading(false); setPlaying(false); }} />
     <button type="button" onClick={toggle} className={`reader-music-prompt ${playing ? "is-playing" : ""}`} aria-label={playing ? "Jeda musik pengiring" : "Putar musik pengiring"} disabled={loading}>
       <span className="reader-music-prompt-icon">{loading ? <LoaderCircle className="animate-spin" size={18} /> : playing ? <Pause size={17} fill="currentColor" /> : <Music2 size={18} />}</span>
       <span className="reader-music-prompt-copy"><strong>{playing ? "Musik sedang diputar" : "Putar musik pengiring"}</strong><small>{playing ? (track.title || "Ketuk untuk menjeda") : "Disarankan untuk menemani membaca"}</small></span>
