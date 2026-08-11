@@ -109,12 +109,16 @@ export default function ChapterForm({ initial, novels, defaultNovelId }: { initi
 
 function ChapterThumbnailField({ value, onChange }: { value: string; onChange: (value: string) => void }) {
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
 
   async function upload(file?: File) {
     if (!file) return;
     setUploading(true);
+    setError("");
     try {
       onChange(await uploadAdminImage(file, "thumbnail"));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Thumbnail gagal diunggah.");
     } finally {
       setUploading(false);
     }
@@ -132,6 +136,7 @@ function ChapterThumbnailField({ value, onChange }: { value: string; onChange: (
           <label className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold"><UploadCloud size={16} />{uploading ? "Mengunggah..." : "Upload gambar"}<input type="file" className="hidden" accept="image/jpeg,image/png,image/webp" disabled={uploading} onChange={(event) => upload(event.target.files?.[0])} /></label>
           {value ? <button type="button" onClick={() => onChange("")} className="inline-flex h-10 items-center gap-2 rounded-lg border border-red-200 bg-white px-3 text-sm font-semibold text-red-700"><Trash2 size={15} />Hapus</button> : null}
         </div>
+        {error ? <ErrorNotice message={error} /> : null}
       </div>
     </section>
   );
@@ -153,6 +158,6 @@ function AddSlideButton({ label, icon, onClick, primary = false }: { label: stri
 
 function SlideCard({ slide, index, count, onChange, onRemove, onMove }: { slide: ChapterSlideData; index: number; count: number; onChange: (index: number, patch: Partial<ChapterSlideData>) => void; onRemove: (index: number) => void; onMove: (index: number, direction: -1 | 1) => void }) {
   const [uploading, setUploading] = useState(false);
-  async function upload(file?: File) { if (!file) return; setUploading(true); try { onChange(index, { imageUrl: await uploadAdminImage(file, "thumbnail") }); } finally { setUploading(false); } }
+  async function upload(file?: File) { if (!file) return; setUploading(true); try { onChange(index, { imageUrl: await uploadAdminImage(file, "thumbnail") }); } catch (cause) { window.alert(cause instanceof Error ? cause.message : "Gambar slide gagal diunggah."); } finally { setUploading(false); } }
   return <article className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"><div className="flex items-center justify-between"><p className="font-bold">Slide {index + 1}</p><div className="flex gap-1"><button type="button" disabled={index === 0} onClick={() => onMove(index, -1)} className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 disabled:opacity-40" title="Pindah ke atas"><ArrowUp size={14} /></button><button type="button" disabled={index === count - 1} onClick={() => onMove(index, 1)} className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 disabled:opacity-40" title="Pindah ke bawah"><ArrowDown size={14} /></button><button type="button" onClick={() => onRemove(index)} className="grid h-8 w-8 place-items-center rounded-lg border border-red-200 text-red-700" title="Hapus slide"><Trash2 size={14} /></button></div></div><div className="mt-4 grid gap-3 lg:grid-cols-[150px_1fr]"><div className="aspect-[3/4] overflow-hidden rounded-lg border border-slate-200 bg-slate-100">{slide.imageUrl ? <img src={slide.imageUrl} alt={slide.altText || slide.title || `Slide ${index + 1}`} className="h-full w-full object-contain" /> : <div className="grid h-full place-items-center p-3 text-center text-xs text-slate-400">Preview slide</div>}</div><div className="grid gap-3"><div className="grid gap-3 md:grid-cols-2"><label><FieldLabel>Tipe</FieldLabel><select className={inputClass} value={slide.type} onChange={(event) => onChange(index, { type: event.target.value as ChapterSlideData["type"] })}><option value="text">Text</option><option value="image">Image</option><option value="image-text">Image + Text</option></select></label><label><FieldLabel>Judul kecil</FieldLabel><input className={inputClass} value={slide.title} onChange={(event) => onChange(index, { title: event.target.value })} /></label></div>{slide.type !== "text" ? <div className="grid gap-2 md:grid-cols-[1fr_auto]"><label><FieldLabel>URL gambar</FieldLabel><input className={inputClass} value={slide.imageUrl} onChange={(event) => onChange(index, { imageUrl: event.target.value })} /></label><label className="mt-5 inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-bold"><UploadCloud size={16} />{uploading ? "Upload..." : "Upload"}<input type="file" className="hidden" accept="image/jpeg,image/png,image/webp" disabled={uploading} onChange={(event) => upload(event.target.files?.[0])} /></label></div> : null}{slide.type !== "image" ? <div><FieldLabel>Narasi</FieldLabel><RichTextEditor value={slide.content} onChange={(content) => onChange(index, { content })} minHeightClassName="min-h-[180px]" compact /></div> : null}<div className="grid gap-3 md:grid-cols-2"><label><FieldLabel>Caption</FieldLabel><input className={inputClass} value={slide.caption} onChange={(event) => onChange(index, { caption: event.target.value })} /></label><label><FieldLabel>Alt text</FieldLabel><input className={inputClass} value={slide.altText} onChange={(event) => onChange(index, { altText: event.target.value })} /></label></div></div></div></article>;
 }

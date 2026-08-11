@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Mark, mergeAttributes } from "@tiptap/core";
+import { Extension, Mark, mergeAttributes, type Editor } from "@tiptap/core";
 import ImageExtension from "@tiptap/extension-image";
 import LinkExtension from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
@@ -25,6 +25,8 @@ import {
   Italic,
   Link,
   List,
+  ListIndentDecrease,
+  ListIndentIncrease,
   ListOrdered,
   Quote,
   Upload,
@@ -58,6 +60,47 @@ const imageSizes = [
   { label: "Besar", value: "85%" },
   { label: "Full", value: "100%" },
 ];
+
+const MAX_PARAGRAPH_INDENT = 8;
+
+function changeParagraphIndent(editor: Editor, delta: -1 | 1) {
+  if (!editor.isActive("paragraph") || editor.isActive("bulletList") || editor.isActive("orderedList")) {
+    return false;
+  }
+
+  const current = Number(editor.getAttributes("paragraph").indent || 0);
+  const indent = Math.max(0, Math.min(MAX_PARAGRAPH_INDENT, current + delta));
+  return editor.chain().focus().updateAttributes("paragraph", { indent }).run();
+}
+
+const ParagraphIndent = Extension.create({
+  name: "paragraphIndent",
+
+  addGlobalAttributes() {
+    return [
+      {
+        types: ["paragraph"],
+        attributes: {
+          indent: {
+            default: 0,
+            parseHTML: (element) => Math.max(0, Math.min(MAX_PARAGRAPH_INDENT, Number(element.getAttribute("data-indent")) || 0)),
+            renderHTML: (attributes) => {
+              const indent = Math.max(0, Math.min(MAX_PARAGRAPH_INDENT, Number(attributes.indent) || 0));
+              return indent ? { "data-indent": String(indent), style: `text-indent: ${indent * 2}em` } : {};
+            },
+          },
+        },
+      },
+    ];
+  },
+
+  addKeyboardShortcuts() {
+    return {
+      Tab: () => changeParagraphIndent(this.editor, 1),
+      "Shift-Tab": () => changeParagraphIndent(this.editor, -1),
+    };
+  },
+});
 
 const TextStyle = Mark.create({
   name: "textStyle",
@@ -197,6 +240,7 @@ export default function RichTextEditor({
   compact = false,
 }: RichTextEditorProps) {
   const [preview, setPreview] = useState(false);
+  const [uploadError, setUploadError] = useState("");
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -210,6 +254,7 @@ export default function RichTextEditor({
         autolink: true,
         defaultProtocol: "https",
       }),
+      ParagraphIndent,
       TextStyle,
       CustomImage.configure({
         resize: {
@@ -224,6 +269,7 @@ export default function RichTextEditor({
       }),
     ],
     content: value || "",
+    parseOptions: { preserveWhitespace: "full" },
     immediatelyRender: false,
     editorProps: {
       attributes: {
@@ -238,14 +284,19 @@ export default function RichTextEditor({
   useEffect(() => {
     if (!editor) return;
     if (value !== editor.getHTML()) {
-      editor.commands.setContent(value || "", { emitUpdate: false });
+      editor.commands.setContent(value || "", { emitUpdate: false, parseOptions: { preserveWhitespace: "full" } });
     }
   }, [editor, value]);
 
   async function addImage(file?: File) {
     if (!editor || !file || !onUploadImage) return;
-    const url = await onUploadImage(file);
-    editor.chain().focus().setImage({ src: url, alt: file.name, width: "100%", align: "center" } as never).run();
+    setUploadError("");
+    try {
+      const url = await onUploadImage(file);
+      editor.chain().focus().setImage({ src: url, alt: file.name, width: "100%", align: "center" } as never).run();
+    } catch (cause) {
+      setUploadError(cause instanceof Error ? cause.message : "Gambar gagal diunggah.");
+    }
   }
 
   function addImageUrl() {
@@ -388,6 +439,12 @@ export default function RichTextEditor({
         <ToolbarButton active={editor.isActive("orderedList")} label="Numbered list" onClick={() => editor.chain().focus().toggleOrderedList().run()}>
           <ListOrdered size={17} />
         </ToolbarButton>
+        <ToolbarButton label="Kurangi indentasi paragraf (Shift+Tab)" onClick={() => changeParagraphIndent(editor, -1)}>
+          <ListIndentDecrease size={17} />
+        </ToolbarButton>
+        <ToolbarButton label="Tambah indentasi paragraf (Tab)" onClick={() => changeParagraphIndent(editor, 1)}>
+          <ListIndentIncrease size={17} />
+        </ToolbarButton>
         <ToolbarButton active={editor.isActive("blockquote")} label="Quote" onClick={() => editor.chain().focus().toggleBlockquote().run()}>
           <Quote size={17} />
         </ToolbarButton>
@@ -402,7 +459,7 @@ export default function RichTextEditor({
           <input
             className="hidden"
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp"
             onChange={(event) => addImage(event.target.files?.[0])}
           />
         </label>
@@ -464,6 +521,7 @@ export default function RichTextEditor({
           Preview
         </button>
       </div>
+      {uploadError ? <p role="alert" className="border-x border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-700">{uploadError}</p> : null}
       {preview ? (
         <div className={`reader-content p-6 ${compact ? "min-h-[180px]" : "min-h-[390px]"}`} dangerouslySetInnerHTML={{ __html: editor.getHTML() }} />
       ) : (

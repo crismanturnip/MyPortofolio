@@ -30,6 +30,10 @@ export async function POST(request: Request) {
   const kind = String(formData.get("kind") || "");
   const file = formData.get("file");
 
+  if (!new Set(["audio", "cover", "thumbnail"]).has(kind)) {
+    return NextResponse.json({ message: "Jenis upload tidak valid." }, { status: 400 });
+  }
+
   if (!(file instanceof File)) {
     return NextResponse.json({ message: "File tidak ditemukan." }, { status: 400 });
   }

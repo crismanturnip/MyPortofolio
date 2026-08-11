@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, ChevronLeft, ChevronRight, List, Maximize2, RotateCcw, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, ChevronLeft, ChevronRight, List, Maximize2, RotateCcw, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MusicPlayer, { type MusicTrack } from "@/components/music-player";
 import { sanitizeRichText } from "@/lib/sanitize-html";
@@ -42,6 +42,7 @@ type StoryReaderProps = {
   progressNamespace?: string;
   backHref?: string;
   chapterBasePath?: string;
+  headerAction?: React.ReactNode;
 };
 
 function slideStorageKey(storySlug: string, episodeSlug: string) {
@@ -61,7 +62,7 @@ function progressLabel(storySlug: string, episodeSlug: string, namespace = "publ
   return Number.isFinite(parsed) && parsed > 0 ? `Terakhir slide ${parsed + 1}` : "";
 }
 
-export default function StoryReader({ story, episode, slides, episodes, previous, next, music, progressNamespace = "public", backHref, chapterBasePath }: StoryReaderProps) {
+export default function StoryReader({ story, episode, slides, episodes, previous, next, music, progressNamespace = "public", backHref, chapterBasePath, headerAction }: StoryReaderProps) {
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const endingIndex = slides.length;
@@ -143,7 +144,7 @@ export default function StoryReader({ story, episode, slides, episodes, previous
   return (
     <div className="reader-bg min-h-[calc(100vh-4rem)] px-3 py-4 sm:px-5 md:px-6 md:py-8">
       <div className="mx-auto flex w-full max-w-[560px] flex-col gap-4 md:max-w-[640px] md:gap-5 xl:max-w-[680px]">
-        <ReaderChapterHeader story={story} episode={episode} episodes={episodes} progressNamespace={progressNamespace} backHref={backHref} chapterBasePath={chapterBasePath} onFullscreen={enterFullscreen} />
+        <ReaderChapterHeader story={story} episode={episode} episodes={episodes} progressNamespace={progressNamespace} backHref={backHref} chapterBasePath={chapterBasePath} onFullscreen={enterFullscreen} action={headerAction} />
 
         <section className="reader-surface rounded-2xl border px-4 py-3.5 sm:px-5 sm:py-4">
           <div className="grid grid-cols-[3rem_minmax(0,1fr)_3rem] items-center gap-2">
@@ -226,7 +227,7 @@ export default function StoryReader({ story, episode, slides, episodes, previous
   );
 }
 
-export function ReaderChapterHeader({ story, episode, episodes, progressNamespace = "public", backHref, chapterBasePath, onFullscreen }: Pick<StoryReaderProps, "story" | "episode" | "episodes" | "progressNamespace" | "backHref" | "chapterBasePath"> & { onFullscreen?: () => void }) {
+export function ReaderChapterHeader({ story, episode, episodes, progressNamespace = "public", backHref, chapterBasePath, onFullscreen, action }: Pick<StoryReaderProps, "story" | "episode" | "episodes" | "progressNamespace" | "backHref" | "chapterBasePath"> & { onFullscreen?: () => void; action?: React.ReactNode }) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const storyHref = backHref || `/novel/${story.slug}`;
   const episodeHref = (slug: string) => chapterBasePath ? `${chapterBasePath}/${slug}` : `/novel/${story.slug}/chapter/${slug}`;
@@ -236,6 +237,7 @@ export function ReaderChapterHeader({ story, episode, episodes, progressNamespac
       <div className="flex items-center justify-between gap-3">
         <a href={storyHref} className="reader-button-secondary grid h-10 w-10 shrink-0 place-items-center rounded-xl border" aria-label="Kembali ke daftar episode"><ArrowLeft size={18} /></a>
         <div className="min-w-0 flex-1 text-center"><p className="truncate text-sm font-semibold">{story.title}</p><p className="reader-muted truncate text-xs">Episode {episode.chapterNumber}: {episode.title}</p></div>
+        {action}
         <button type="button" onClick={() => setSheetOpen(true)} className="reader-button-secondary grid h-10 w-10 shrink-0 place-items-center rounded-xl border" aria-label="Buka daftar episode"><List size={18} /></button>
         {onFullscreen ? <button type="button" onClick={onFullscreen} className="reader-button-secondary hidden h-10 w-10 shrink-0 place-items-center rounded-xl border sm:grid" aria-label="Mode layar penuh"><Maximize2 size={17} /></button> : null}
       </div>
@@ -272,24 +274,23 @@ function StorySlide({ slide }: { slide: ReaderSlide }) {
 function CompletionCard({ storyHref, episodeHref, next, onReplay }: { storyHref: string; episodeHref: (slug: string) => string; next: ReaderEpisode | null; onReplay: () => void }) {
   return (
     <article className="grid min-w-full snap-center snap-always place-items-center bg-[var(--reader-surface-soft)] p-6 text-center">
-      <div>
-        <CheckCircle2 className="reader-cyan mx-auto" size={46} />
-        <h2 className="mt-5 text-2xl font-semibold">Kamu telah menyelesaikan episode ini</h2>
-        {next ? <p className="reader-muted mt-3">Episode berikutnya: Ch {next.chapterNumber}: {next.title}</p> : <p className="reader-muted mt-3">Belum ada episode berikutnya.</p>}
+      <div className="w-full max-w-sm">
+        <p className="reader-muted text-xs font-semibold uppercase tracking-[0.2em]">Akhir chapter</p>
+        {next ? <p className="mt-3 text-lg font-semibold">Berikutnya: Chapter {next.chapterNumber} · {next.title}</p> : <p className="reader-muted mt-3">Belum ada chapter berikutnya.</p>}
         <div className="mt-6 grid gap-3">
           {next ? (
             <a href={episodeHref(next.slug)} className="reader-button inline-flex h-11 items-center justify-center gap-2 rounded-xl border text-sm font-semibold">
-              Lanjut ke Episode Berikutnya
+              Baca Chapter Berikutnya
               <ArrowRight size={17} />
             </a>
           ) : null}
           <a href={storyHref} className="reader-button-secondary inline-flex h-11 items-center justify-center gap-2 rounded-xl border text-sm font-semibold">
             <BookOpen size={17} />
-            Kembali ke Daftar Episode
+            Kembali ke Daftar Chapter
           </a>
           <button type="button" onClick={onReplay} className="reader-button-secondary inline-flex h-11 items-center justify-center gap-2 rounded-xl border text-sm font-semibold">
             <RotateCcw size={17} />
-            Baca Ulang
+            Kembali ke Awal
           </button>
         </div>
       </div>

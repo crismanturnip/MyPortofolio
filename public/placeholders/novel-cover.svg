@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 480" role="img" aria-labelledby="title description">
+  <title id="title">Cover novel belum tersedia</title>
+  <desc id="description">Placeholder netral berbentuk buku.</desc>
+  <defs>
+    <linearGradient id="cover" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f766e"/>
+      <stop offset="1" stop-color="#064e3b"/>
+    </linearGradient>
+  </defs>
+  <rect width="360" height="480" rx="28" fill="#e8f1ed"/>
+  <path d="M82 82c0-13 11-24 24-24h180v342H106c-13 0-24-11-24-24V82Z" fill="url(#cover)"/>
+  <path d="M106 58v342M126 126h116M126 158h86" fill="none" stroke="#a7d7c7" stroke-width="10" stroke-linecap="round"/>
+  <path d="M118 330c40-28 84-28 128 0v42c-44-28-88-28-128 0v-42Z" fill="#fff" fill-opacity=".88"/>
+</svg>

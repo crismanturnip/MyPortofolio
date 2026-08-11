@@ -1,13 +1,22 @@
 import { access } from "node:fs/promises";
 import path from "node:path";
+import { getLocalUploadRoot } from "@/lib/upload-path";
 
 export const blogFallbackImages = ["/placeholders/blog-thumbnail.svg"];
-export const novelFallbackImages = ["/assets/images/project1.png", "/assets/images/project2.jpg", "/assets/images/project3.png"];
-export const chapterFallbackImages = ["/assets/images/project1.png", "/assets/images/project2.jpg", "/assets/images/project3.png"];
+export const novelFallbackImages = ["/placeholders/novel-cover.svg"];
+export const chapterFallbackImages = ["/placeholders/chapter-thumbnail.svg"];
 
 async function localUploadExists(url: string) {
+  const uploadRoot = getLocalUploadRoot();
+  const relativePath = url.slice("/uploads/".length);
+  const filePath = path.resolve(uploadRoot, relativePath);
+
+  if (!filePath.startsWith(`${uploadRoot}${path.sep}`)) {
+    return false;
+  }
+
   try {
-    await access(path.join(process.cwd(), "public", url.slice(1)));
+    await access(filePath);
     return true;
   } catch {
     return false;
@@ -19,9 +28,8 @@ export async function resolvePublicImageUrl(url: string | null | undefined, fall
     return fallback;
   }
 
-  // Public pages must not depend on third-party hosts that can block hotlinks.
   if (/^https?:\/\//i.test(url)) {
-    return fallback;
+    return url;
   }
 
   if (url.startsWith("/uploads/") && !(await localUploadExists(url))) {

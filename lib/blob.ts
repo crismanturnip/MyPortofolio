@@ -4,7 +4,7 @@ import { put } from "@vercel/blob";
 import { getLocalUploadRoot } from "@/lib/upload-path";
 
 export async function uploadImageToBlob(file: File, folder: "covers" | "thumbnails") {
-  const ext = file.name.split(".").pop() || "jpg";
+  const ext = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
   const filename = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
   if (!process.env.BLOB_READ_WRITE_TOKEN) {

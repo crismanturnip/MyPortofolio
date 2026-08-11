@@ -36,6 +36,7 @@ export default async function ChapterDetailPage({ params }: Props) {
       title: true,
       slug: true,
       chapterNumber: true,
+      thumbnailUrl: true,
       slides: {
         orderBy: { order: "asc" },
         select: { imageUrl: true },
@@ -50,7 +51,7 @@ export default async function ChapterDetailPage({ params }: Props) {
     title: item.title,
     slug: item.slug,
     chapterNumber: item.chapterNumber,
-    thumbnail: item.slides.find((slide) => slide.imageUrl)?.imageUrl || null,
+    thumbnail: item.thumbnailUrl || item.slides.find((slide) => slide.imageUrl)?.imageUrl || null,
     slideCount: item.slides.length,
   }));
   const track: MusicTrack | null = chapter.musicUrl

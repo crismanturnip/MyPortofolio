@@ -56,7 +56,7 @@ export default async function ReaderLandingPage() {
     }))
   );
   const featuredNovelCover = featuredNovel
-    ? await resolvePublicImageUrl(featuredNovel.coverUrl, novelFallbackImages[1])
+    ? await resolvePublicImageUrl(featuredNovel.coverUrl, novelFallbackImages[0])
     : null;
   const displayChapters = await Promise.all(
     latestChapters.map(async (chapter, index) => ({
@@ -131,7 +131,7 @@ export default async function ReaderLandingPage() {
             <div className="reader-surface reader-card-lift mt-8 rounded-2xl border p-5 sm:p-6">
               <div className="grid gap-6 sm:grid-cols-[160px_1fr]">
                 <div className="aspect-[3/4] overflow-hidden rounded-lg bg-[var(--reader-surface-soft)] shadow-sm">
-                  <img src={featuredNovelCover || novelFallbackImages[1]} alt={featuredNovel.title} loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                  <img src={featuredNovelCover || novelFallbackImages[0]} alt={featuredNovel.title} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                 </div>
                 <div>
                   <h3 className="text-2xl font-semibold leading-tight">{featuredNovel.title}</h3>

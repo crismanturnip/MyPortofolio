@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-labelledby="title description">
+  <title id="title">Thumbnail chapter belum tersedia</title>
+  <desc id="description">Placeholder netral berbentuk halaman buku.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eef5f2"/>
+      <stop offset="1" stop-color="#dce9e3"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="320" rx="28" fill="url(#background)"/>
+  <rect x="84" y="62" width="152" height="196" rx="14" fill="#fff" stroke="#8ba99c" stroke-width="8"/>
+  <path d="M116 114h88M116 146h88M116 178h64" fill="none" stroke="#8ba99c" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="203" cy="220" r="13" fill="#0f766e"/>
+</svg>

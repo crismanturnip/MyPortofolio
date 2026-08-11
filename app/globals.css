@@ -309,15 +309,15 @@ body {
 .reader-view-all:active { transform: translateY(0) scale(0.96); }
 
 .reader-music-player { width: fit-content; max-width: 100%; min-width: 0; color: var(--reader-text); }
-.reader-music-prompt { display: flex; width: auto; max-width: 100%; min-height: 3rem; align-items: center; gap: 0.65rem; border: 1px solid color-mix(in srgb, var(--reader-primary) 32%, var(--reader-border)); border-radius: 999px; background: color-mix(in srgb, var(--reader-surface) 92%, var(--reader-primary) 8%); color: var(--reader-text); padding: 0.35rem 0.55rem 0.35rem 0.4rem; box-shadow: 0 8px 22px color-mix(in srgb, var(--reader-primary) 12%, transparent); transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease; }
-.reader-music-prompt:hover, .reader-music-prompt:focus-visible { transform: translateY(-2px); border-color: var(--reader-cyan); background: color-mix(in srgb, var(--reader-surface) 85%, var(--reader-primary) 15%); }
+.reader-music-prompt { display: flex; width: auto; max-width: 100%; min-height: 2.8rem; align-items: center; gap: 0.55rem; border: 1px solid var(--reader-border); border-radius: 0.8rem; background: color-mix(in srgb, var(--reader-surface-soft) 96%, var(--reader-text) 4%); color: var(--reader-text); padding: 0.35rem 0.65rem; box-shadow: 0 4px 12px color-mix(in srgb, var(--reader-text) 7%, transparent); transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease; }
+.reader-music-prompt:hover, .reader-music-prompt:focus-visible { transform: translateY(-1px); border-color: color-mix(in srgb, var(--reader-text) 28%, var(--reader-border)); background: color-mix(in srgb, var(--reader-surface-soft) 92%, var(--reader-text) 8%); }
 .reader-music-prompt:active { transform: scale(0.97); }
-.reader-music-prompt.is-playing { border-color: color-mix(in srgb, var(--reader-cyan) 65%, var(--reader-border)); }
-.reader-music-prompt-icon { display: grid; width: 2.2rem; height: 2.2rem; flex: 0 0 2.2rem; place-items: center; border-radius: 999px; background: var(--reader-primary); color: #fff; }
+.reader-music-prompt.is-playing { border-color: color-mix(in srgb, var(--reader-text) 30%, var(--reader-border)); }
+.reader-music-prompt-icon { display: grid; width: 1.8rem; height: 1.8rem; flex: 0 0 1.8rem; place-items: center; border-right: 1px solid var(--reader-border); color: var(--reader-text); }
 .reader-music-prompt-copy { display: grid; min-width: 0; text-align: left; }
 .reader-music-prompt-copy strong { overflow: hidden; font-size: 0.76rem; line-height: 1.1rem; text-overflow: ellipsis; white-space: nowrap; }
 .reader-music-prompt-copy small { overflow: hidden; max-width: 14rem; color: var(--reader-muted); font-size: 0.62rem; line-height: 0.9rem; text-overflow: ellipsis; white-space: nowrap; }
-.reader-music-prompt-play { flex: 0 0 auto; margin-right: 0.25rem; color: var(--reader-primary); }
+.reader-music-prompt-play { flex: 0 0 auto; margin-left: 0.15rem; color: var(--reader-muted); }
 .reader-music-main { display: flex; min-width: 0; align-items: center; gap: 0.75rem; }
 .reader-music-toggle { display: grid; width: 2.75rem; height: 2.75rem; flex: 0 0 auto; place-items: center; border: 1px solid color-mix(in srgb, var(--reader-primary) 45%, var(--reader-border)); border-radius: 999px; background: var(--reader-primary); color: #fff; transition: transform 0.2s ease, background 0.2s ease; }
 .reader-music-toggle:hover, .reader-music-toggle:focus-visible { transform: scale(1.06); background: var(--reader-primary-strong); }
@@ -331,18 +331,11 @@ body {
 .reader-music-progress, .reader-music-volume input { width: 100%; accent-color: var(--reader-primary); cursor: pointer; }
 .reader-music-volume { display: flex; align-items: center; gap: 0.35rem; }
 .reader-music-error { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.6rem; color: #dc2626; font-size: 0.75rem; }
-.reader-equalizer { display: flex; width: 0.85rem; height: 1rem; align-items: end; justify-content: center; gap: 2px; color: var(--reader-cyan); }
-.reader-equalizer i { width: 2px; height: 35%; border-radius: 2px; background: currentColor; }
-.reader-equalizer.is-playing i { animation: reader-equalizer 0.7s ease-in-out infinite alternate; }
-.reader-equalizer.is-playing i:nth-child(2) { animation-delay: -0.25s; }
-.reader-equalizer.is-playing i:nth-child(3) { animation-delay: -0.45s; }
-@keyframes reader-equalizer { to { height: 100%; } }
-
 .reader-shell :where(a, button, input, select, textarea):focus-visible { outline: 3px solid color-mix(in srgb, var(--reader-cyan) 65%, transparent); outline-offset: 3px; }
 
 @media (max-width: 639px) {
   .reader-music-prompt { min-height: 2.75rem; }
-  .reader-music-prompt-icon { width: 2rem; height: 2rem; flex-basis: 2rem; }
+  .reader-music-prompt-icon { width: 1.7rem; height: 1.7rem; flex-basis: 1.7rem; }
   .reader-music-prompt-copy small { max-width: 11rem; }
 }
 
@@ -751,6 +744,8 @@ select:disabled {
   font-size: 1.0625rem;
   line-height: 1.95;
   overflow-wrap: anywhere;
+  tab-size: 4;
+  white-space: break-spaces;
 }
 
 .reader-content h1,
@@ -776,6 +771,11 @@ select:disabled {
 
 .reader-content p {
   margin: 1.15rem 0;
+  min-height: 1em;
+}
+
+.reader-content p:empty::before {
+  content: "\00a0";
 }
 
 .reader-content blockquote {
@@ -830,7 +830,10 @@ select:disabled {
 .cms-editor .ProseMirror {
   min-height: 390px;
   outline: none;
+  overflow-wrap: anywhere;
   padding: 1.25rem;
+  tab-size: 4;
+  white-space: break-spaces;
 }
 
 .cms-editor-compact .ProseMirror {
@@ -839,6 +842,11 @@ select:disabled {
 
 .cms-editor .ProseMirror p {
   margin: 0.75rem 0;
+  min-height: 1em;
+}
+
+.cms-editor .ProseMirror p:empty::before {
+  content: "\00a0";
 }
 
 .cms-editor .ProseMirror h1,

@@ -45,7 +45,7 @@ export default function MusicPlayer({ track, compact = false }: { track: MusicTr
     <button type="button" onClick={toggle} className={`reader-music-prompt ${playing ? "is-playing" : ""}`} aria-label={playing ? "Jeda musik pengiring" : "Putar musik pengiring"} disabled={loading}>
       <span className="reader-music-prompt-icon">{loading ? <LoaderCircle className="animate-spin" size={18} /> : playing ? <Pause size={17} fill="currentColor" /> : <Music2 size={18} />}</span>
       <span className="reader-music-prompt-copy"><strong>{playing ? "Musik sedang diputar" : "Putar musik pengiring"}</strong><small>{playing ? (track.title || "Ketuk untuk menjeda") : "Disarankan untuk menemani membaca"}</small></span>
-      {playing ? <span className="reader-equalizer is-playing" aria-hidden="true"><i /><i /><i /></span> : <Play className="reader-music-prompt-play" size={15} fill="currentColor" aria-hidden="true" />}
+      {!playing ? <Play className="reader-music-prompt-play" size={15} fill="currentColor" aria-hidden="true" /> : null}
     </button>
     {error ? <p className="reader-music-error" role="alert"><AlertCircle size={15} />{error}</p> : null}
   </section>;
