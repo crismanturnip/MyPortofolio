@@ -54,6 +54,13 @@ const fontFamilies = [
 ];
 
 const fontSizes = ["Default", "12px", "14px", "16px", "18px", "20px", "24px", "32px"];
+const lineHeights = [
+  { label: "Bawaan", value: "" },
+  { label: "1", value: "1" },
+  { label: "1.15", value: "1.15" },
+  { label: "1.5", value: "1.5" },
+  { label: "2", value: "2" },
+];
 const imageSizes = [
   { label: "Kecil", value: "35%" },
   { label: "Sedang", value: "60%" },
@@ -99,6 +106,33 @@ const ParagraphIndent = Extension.create({
       Tab: () => changeParagraphIndent(this.editor, 1),
       "Shift-Tab": () => changeParagraphIndent(this.editor, -1),
     };
+  },
+});
+
+const LineHeight = Extension.create({
+  name: "lineHeight",
+
+  addGlobalAttributes() {
+    return [
+      {
+        types: ["paragraph", "heading"],
+        attributes: {
+          lineHeight: {
+            default: null,
+            parseHTML: (element) => {
+              const value = element.getAttribute("data-line-height") || element.style.lineHeight;
+              return lineHeights.some((option) => option.value === value) ? value : null;
+            },
+            renderHTML: (attributes) => {
+              const value = String(attributes.lineHeight || "");
+              return lineHeights.some((option) => option.value === value) && value
+                ? { "data-line-height": value, style: `line-height: ${value}` }
+                : {};
+            },
+          },
+        },
+      },
+    ];
   },
 });
 
@@ -255,6 +289,7 @@ export default function RichTextEditor({
         defaultProtocol: "https",
       }),
       ParagraphIndent,
+      LineHeight,
       TextStyle,
       CustomImage.configure({
         resize: {
@@ -325,6 +360,12 @@ export default function RichTextEditor({
     editor.chain().focus().setMark("textStyle", { ...current, ...nextStyle }).run();
   }
 
+  function setLineHeight(lineHeight: string) {
+    if (!editor) return;
+    const blockType = editor.isActive("heading") ? "heading" : "paragraph";
+    editor.chain().focus().updateAttributes(blockType, { lineHeight: lineHeight || null }).run();
+  }
+
   function setImageWidth(width: string) {
     if (!editor) return;
     editor.chain().focus().updateAttributes("image", { width }).run();
@@ -389,6 +430,18 @@ export default function RichTextEditor({
           {fontSizes.map((size) => (
             <option key={size} value={size}>
               {size}
+            </option>
+          ))}
+        </ToolbarSelect>
+
+        <ToolbarSelect
+          label="Jarak baris"
+          value={String(editor.getAttributes(editor.isActive("heading") ? "heading" : "paragraph").lineHeight || "")}
+          onChange={setLineHeight}
+        >
+          {lineHeights.map((option) => (
+            <option key={option.label} value={option.value}>
+              Jarak {option.label}
             </option>
           ))}
         </ToolbarSelect>
