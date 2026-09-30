@@ -1,4 +1,4 @@
-export const PUBLIC_CONTENT_RELEASED = false;
+export const PUBLIC_CONTENT_RELEASED = true;
 
 export function getPublicContentHref(type: "blog" | "novel", path = "") {
   if (PUBLIC_CONTENT_RELEASED) {
