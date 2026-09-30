@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { novelFallbackImages, resolvePublicImageUrl } from "@/lib/public-images";
 import MusicPlayer from "@/components/music-player";
+import LockedContentNotice from "@/components/locked-content-notice";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -11,10 +12,10 @@ type Props = {
 export default async function NovelDetailPage({ params }: Props) {
   const { slug } = await params;
   const novel = await prisma.novel.findFirst({
-    where: { slug, status: "PUBLISHED" },
+    where: { slug, status: { in: ["PUBLISHED", "LOCKED"] } },
     include: {
       chapters: {
-        where: { status: "PUBLISHED" },
+        where: { status: { in: ["PUBLISHED", "LOCKED"] } },
         orderBy: { chapterNumber: "asc" },
       },
     },
@@ -22,6 +23,10 @@ export default async function NovelDetailPage({ params }: Props) {
 
   if (!novel) {
     notFound();
+  }
+
+  if (novel.status === "LOCKED") {
+    return <LockedContentNotice title={novel.title} backHref="/novel" backLabel="Kembali ke semua novel" detail={novel.summary} />;
   }
 
   const firstChapter = novel.chapters[0];
@@ -52,6 +57,7 @@ export default async function NovelDetailPage({ params }: Props) {
             <a key={chapter.id} href={`/novel/${novel.slug}/chapter/${chapter.slug}`} className="reader-chapter-link flex items-center justify-between gap-4 py-4">
               <div>
                 <p className="font-black">Chapter {chapter.chapterNumber}: {chapter.title}</p>
+                {chapter.status === "LOCKED" ? <span className="mt-1 inline-flex rounded-full border border-violet-200 bg-violet-50 px-2.5 py-1 text-xs font-bold text-violet-700">Terkunci</span> : null}
                 <p className="reader-muted text-sm">{chapter.publishedAt ? new Date(chapter.publishedAt).toLocaleDateString("id-ID") : ""}</p>
               </div>
               <span className="reader-badge inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-bold">Baca <ArrowRight size={13} aria-hidden="true" /></span>

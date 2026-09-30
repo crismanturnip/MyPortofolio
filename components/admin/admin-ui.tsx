@@ -37,10 +37,11 @@ export function PageHeader({
 
 export function StatusBadge({ status }: { status: PublishStatus }) {
   const published = status === "PUBLISHED";
+  const locked = status === "LOCKED";
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ${published ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
-      <span className={`h-1.5 w-1.5 rounded-full ${published ? "bg-emerald-500" : "bg-amber-500"}`} />
-      {published ? "Published" : "Draft"}
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ${published ? "bg-emerald-50 text-emerald-700" : locked ? "bg-violet-50 text-violet-700" : "bg-amber-50 text-amber-700"}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${published ? "bg-emerald-500" : locked ? "bg-violet-500" : "bg-amber-500"}`} />
+      {published ? "Published" : locked ? "Terkunci" : "Draft"}
     </span>
   );
 }

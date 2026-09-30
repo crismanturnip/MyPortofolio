@@ -72,9 +72,10 @@ export default function BlogForm({ initial, categories, tags }: { initial?: Blog
         <aside className="grid content-start gap-4">
           <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex items-center justify-between"><h2 className="font-black">Publikasi</h2><StatusBadge status={form.status} /></div>
-            <label className="mt-4 block"><FieldLabel>Status</FieldLabel><select className={inputClass} value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value as PublishStatus })}><option value="DRAFT">Draft</option><option value="PUBLISHED">Published</option></select></label>
+            <label className="mt-4 block"><FieldLabel>Status</FieldLabel><select className={inputClass} value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value as PublishStatus })}><option value="DRAFT">Draft</option><option value="LOCKED">Terkunci</option><option value="PUBLISHED">Published</option></select></label>
             <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
               <button type="button" disabled={saving || !form.title.trim()} onClick={() => save("DRAFT")} className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 font-bold disabled:opacity-60">{saving ? <LoaderCircle className="animate-spin" size={16} /> : <Save size={16} />}Simpan draft</button>
+              <button type="button" disabled={saving || !form.title.trim()} onClick={() => save("LOCKED")} className="h-10 rounded-lg border border-violet-200 bg-violet-50 px-4 font-bold text-violet-700 disabled:opacity-60">Simpan terkunci</button>
               <button type="button" disabled={saving || !form.title.trim()} onClick={() => save("PUBLISHED")} className="h-10 rounded-lg bg-blue-600 px-4 font-bold text-white disabled:opacity-60">Publikasikan</button>
             </div>
           </section>

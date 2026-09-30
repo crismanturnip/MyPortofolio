@@ -57,7 +57,7 @@ export async function POST(request: Request) {
       musicUrl: parsed.data.musicUrl || null,
       musicVolume: parsed.data.musicVolume,
       status: parsed.data.status,
-      publishedAt: parsed.data.status === "PUBLISHED" ? new Date() : null,
+      publishedAt: parsed.data.status !== "DRAFT" ? new Date() : null,
       slides: {
         create: parsed.data.slides.map((slide, index) => ({
           order: index + 1,

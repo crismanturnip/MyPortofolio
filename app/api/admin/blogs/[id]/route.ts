@@ -42,7 +42,7 @@ export async function PATCH(request: Request, { params }: Props) {
       thumbnailUrl: parsed.data.thumbnailUrl || null,
       status: parsed.data.status,
       publishedAt:
-        parsed.data.status === "PUBLISHED"
+        parsed.data.status !== "DRAFT"
           ? existingBlog.publishedAt ?? new Date()
           : null,
       categories: {

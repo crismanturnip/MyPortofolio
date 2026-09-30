@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const publishStatusSchema = z.enum(["DRAFT", "PUBLISHED"]);
+export const publishStatusSchema = z.enum(["DRAFT", "LOCKED", "PUBLISHED"]);
 
 export const loginSchema = z.object({
   email: z.string().email(),

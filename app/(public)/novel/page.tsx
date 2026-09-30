@@ -6,9 +6,9 @@ export const dynamic = "force-dynamic";
 
 export default async function NovelListPage() {
   const novels = await prisma.novel.findMany({
-    where: { status: "PUBLISHED" },
+    where: { status: { in: ["PUBLISHED", "LOCKED"] } },
     orderBy: { publishedAt: "desc" },
-    include: { chapters: { where: { status: "PUBLISHED" }, orderBy: { chapterNumber: "asc" } } },
+    include: { chapters: { where: { status: { in: ["PUBLISHED", "LOCKED"] } }, orderBy: { chapterNumber: "asc" } } },
   });
   const novelCards = await Promise.all(
     novels.map(async (novel, index) => ({
@@ -36,6 +36,7 @@ export default async function NovelListPage() {
             <div className="pt-4">
               <p className="reader-cyan text-xs font-bold uppercase tracking-widest">{novel.genre || "Novel"}</p>
               <h2 className="mt-2 text-xl font-bold group-hover:text-[var(--reader-primary)]">{novel.title}</h2>
+              {novel.status === "LOCKED" ? <span className="mt-2 inline-flex rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-bold text-violet-700">Terkunci</span> : null}
               <p className="reader-muted mt-2 line-clamp-3 text-sm leading-6">{novel.summary}</p>
               <div className="reader-muted mt-4 flex items-center justify-between gap-3 text-sm font-bold"><span className="inline-flex items-center gap-2"><LibraryBig size={15} aria-hidden="true" />{novel.chapters.length} chapter</span><ArrowUpRight className="reader-card-arrow reader-primary" size={18} aria-hidden="true" /></div>
             </div>

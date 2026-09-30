@@ -9,14 +9,14 @@ export async function GET(_request: Request, { params }: Props) {
   const data = await prisma.chapter.findFirst({
     where: {
       slug: chapterSlug,
-      status: "PUBLISHED",
+      status: { in: ["PUBLISHED", "LOCKED"] },
       novel: {
         slug,
-        status: "PUBLISHED"
+        status: { in: ["PUBLISHED", "LOCKED"] }
       }
     },
     include: {
-      novel: { select: { title: true, slug: true, musicTitle: true, musicArtist: true, musicUrl: true, musicVolume: true } },
+      novel: { select: { title: true, slug: true, status: true, musicTitle: true, musicArtist: true, musicUrl: true, musicVolume: true } },
       slides: { orderBy: { order: "asc" } }
     }
   });
@@ -28,7 +28,8 @@ export async function GET(_request: Request, { params }: Props) {
   return NextResponse.json({
     data: {
       ...data,
-      content: sanitizeRichText(data.content)
+      content: data.status === "LOCKED" || data.novel.status === "LOCKED" ? null : sanitizeRichText(data.content),
+      slides: data.status === "LOCKED" || data.novel.status === "LOCKED" ? [] : data.slides
     }
   });
 }

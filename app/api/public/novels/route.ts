@@ -5,11 +5,11 @@ import { sanitizeRichText } from "@/lib/sanitize-html";
 
 export async function GET() {
   const data = await prisma.novel.findMany({
-    where: { status: "PUBLISHED" },
+    where: { status: { in: ["PUBLISHED", "LOCKED"] } },
     orderBy: { publishedAt: "desc" },
     include: {
       chapters: {
-        where: { status: "PUBLISHED" },
+        where: { status: { in: ["PUBLISHED", "LOCKED"] } },
         orderBy: { chapterNumber: "asc" }
       }
     }
@@ -20,7 +20,7 @@ export async function GET() {
       coverUrl: await resolvePublicImageUrl(novel.coverUrl, novelFallbackImages[index % novelFallbackImages.length]),
       chapters: novel.chapters.map((chapter) => ({
         ...chapter,
-        content: sanitizeRichText(chapter.content)
+        content: novel.status === "LOCKED" || chapter.status === "LOCKED" ? null : sanitizeRichText(chapter.content)
       }))
     }))
   );

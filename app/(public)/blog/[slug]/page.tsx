@@ -3,6 +3,7 @@ import { ArrowLeft, CalendarDays, Clock3 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { blogFallbackImages, resolvePublicImageUrl } from "@/lib/public-images";
 import { sanitizeRichText } from "@/lib/sanitize-html";
+import LockedContentNotice from "@/components/locked-content-notice";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -11,7 +12,7 @@ type Props = {
 export default async function BlogDetailPage({ params }: Props) {
   const { slug } = await params;
   const blog = await prisma.blog.findFirst({
-    where: { slug, status: "PUBLISHED" },
+    where: { slug, status: { in: ["PUBLISHED", "LOCKED"] } },
     include: {
       categories: { include: { category: true } },
       tags: { include: { tag: true } },
@@ -20,6 +21,10 @@ export default async function BlogDetailPage({ params }: Props) {
 
   if (!blog) {
     notFound();
+  }
+
+  if (blog.status === "LOCKED") {
+    return <LockedContentNotice title={blog.title} backHref="/blog" backLabel="Kembali ke semua blog" detail={blog.excerpt || undefined} />;
   }
 
   const safeContent = sanitizeRichText(blog.content);

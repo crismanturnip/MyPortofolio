@@ -5,7 +5,7 @@ import { sanitizeRichText } from "@/lib/sanitize-html";
 
 export async function GET() {
   const data = await prisma.blog.findMany({
-    where: { status: "PUBLISHED" },
+    where: { status: { in: ["PUBLISHED", "LOCKED"] } },
     include: {
       categories: { include: { category: true } },
       tags: { include: { tag: true } }
@@ -15,7 +15,7 @@ export async function GET() {
   const resolved = await Promise.all(
     data.map(async (blog, index) => ({
       ...blog,
-      content: sanitizeRichText(blog.content),
+      content: blog.status === "LOCKED" ? null : sanitizeRichText(blog.content),
       thumbnailUrl: await resolvePublicImageUrl(blog.thumbnailUrl, blogFallbackImages[index % blogFallbackImages.length])
     }))
   );

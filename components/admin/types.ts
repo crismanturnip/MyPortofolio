@@ -1,4 +1,4 @@
-export type PublishStatus = "DRAFT" | "PUBLISHED";
+export type PublishStatus = "DRAFT" | "LOCKED" | "PUBLISHED";
 
 export type TaxonomyItem = {
   id: number;

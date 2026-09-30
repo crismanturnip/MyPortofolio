@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import StoryReader, { ReaderChapterHeader } from "@/components/story-reader";
 import { sanitizeRichText } from "@/lib/sanitize-html";
 import MusicPlayer, { type MusicTrack } from "@/components/music-player";
+import LockedContentNotice from "@/components/locked-content-notice";
 
 type Props = {
   params: Promise<{ slug: string; chapterSlug: string }>;
@@ -13,10 +14,10 @@ export default async function ChapterDetailPage({ params }: Props) {
   const chapter = await prisma.chapter.findFirst({
     where: {
       slug: chapterSlug,
-      status: "PUBLISHED",
+      status: { in: ["PUBLISHED", "LOCKED"] },
       novel: {
         slug,
-        status: "PUBLISHED",
+        status: { in: ["PUBLISHED", "LOCKED"] },
       },
     },
     include: {
@@ -29,13 +30,18 @@ export default async function ChapterDetailPage({ params }: Props) {
     notFound();
   }
 
+  if (chapter.status === "LOCKED" || chapter.novel.status === "LOCKED") {
+    return <LockedContentNotice title={`Chapter ${chapter.chapterNumber}: ${chapter.title}`} backHref={`/novel/${chapter.novel.slug}`} backLabel="Kembali ke novel" detail="Chapter ini masih terkunci dan belum bisa dibaca. Silakan kembali lagi nanti." />;
+  }
+
   const siblings = await prisma.chapter.findMany({
-    where: { novelId: chapter.novelId, status: "PUBLISHED" },
+    where: { novelId: chapter.novelId, status: { in: ["PUBLISHED", "LOCKED"] } },
     orderBy: { chapterNumber: "asc" },
     select: {
       title: true,
       slug: true,
       chapterNumber: true,
+      status: true,
       thumbnailUrl: true,
       slides: {
         orderBy: { order: "asc" },
@@ -51,8 +57,8 @@ export default async function ChapterDetailPage({ params }: Props) {
     title: item.title,
     slug: item.slug,
     chapterNumber: item.chapterNumber,
-    thumbnail: item.thumbnailUrl || item.slides.find((slide) => slide.imageUrl)?.imageUrl || null,
-    slideCount: item.slides.length,
+    thumbnail: item.status === "LOCKED" ? item.thumbnailUrl : item.thumbnailUrl || item.slides.find((slide) => slide.imageUrl)?.imageUrl || null,
+    slideCount: item.status === "LOCKED" ? 0 : item.slides.length,
   }));
   const track: MusicTrack | null = chapter.musicUrl
     ? { title: chapter.musicTitle, artist: chapter.musicArtist, url: chapter.musicUrl, volume: chapter.musicVolume, source: "chapter" }

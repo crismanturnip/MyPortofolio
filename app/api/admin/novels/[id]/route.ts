@@ -46,7 +46,7 @@ export async function PATCH(request: Request, { params }: Props) {
       musicVolume: parsed.data.musicVolume,
       status: parsed.data.status,
       publishedAt:
-        parsed.data.status === "PUBLISHED"
+        parsed.data.status !== "DRAFT"
           ? existingNovel.publishedAt ?? new Date()
           : null
     }

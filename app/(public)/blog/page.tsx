@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export default async function BlogListPage() {
   const blogs = await prisma.blog.findMany({
-    where: { status: "PUBLISHED" },
+    where: { status: { in: ["PUBLISHED", "LOCKED"] } },
     include: {
       categories: { include: { category: true } },
       tags: { include: { tag: true } },
@@ -52,9 +52,10 @@ export default async function BlogListPage() {
                 ))}
               </div>
               <h2 className="mt-4 text-2xl font-bold tracking-wide group-hover:text-[var(--reader-primary)]">{blog.title}</h2>
+              {blog.status === "LOCKED" ? <span className="mt-2 inline-flex rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-bold text-violet-700">Terkunci</span> : null}
               <p className="reader-muted mt-3 line-clamp-3">{blog.excerpt || "Tanpa excerpt."}</p>
               <p className="reader-muted mt-6 text-sm font-semibold">{blog.publishedAt ? new Date(blog.publishedAt).toLocaleDateString("id-ID") : ""}</p>
-              <span className="reader-primary mt-4 inline-flex items-center gap-2 text-sm font-bold">Baca tulisan <ArrowUpRight className="reader-card-arrow" size={17} aria-hidden="true" /></span>
+              <span className="reader-primary mt-4 inline-flex items-center gap-2 text-sm font-bold">{blog.status === "LOCKED" ? "Lihat status" : "Baca tulisan"} <ArrowUpRight className="reader-card-arrow" size={17} aria-hidden="true" /></span>
             </div>
           </a>
         ))}

@@ -8,10 +8,10 @@ type Props = { params: Promise<{ slug: string }> };
 export async function GET(_request: Request, { params }: Props) {
   const { slug } = await params;
   const data = await prisma.novel.findFirst({
-    where: { slug, status: "PUBLISHED" },
+    where: { slug, status: { in: ["PUBLISHED", "LOCKED"] } },
     include: {
       chapters: {
-        where: { status: "PUBLISHED" },
+        where: { status: { in: ["PUBLISHED", "LOCKED"] } },
         orderBy: { chapterNumber: "asc" }
       }
     }
@@ -27,7 +27,7 @@ export async function GET(_request: Request, { params }: Props) {
       coverUrl: await resolvePublicImageUrl(data.coverUrl, novelFallbackImages[0]),
       chapters: data.chapters.map((chapter) => ({
         ...chapter,
-        content: sanitizeRichText(chapter.content)
+        content: data.status === "LOCKED" || chapter.status === "LOCKED" ? null : sanitizeRichText(chapter.content)
       }))
     }
   });

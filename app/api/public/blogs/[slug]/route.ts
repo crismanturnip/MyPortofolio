@@ -8,7 +8,7 @@ type Props = { params: Promise<{ slug: string }> };
 export async function GET(_request: Request, { params }: Props) {
   const { slug } = await params;
   const data = await prisma.blog.findFirst({
-    where: { slug, status: "PUBLISHED" },
+    where: { slug, status: { in: ["PUBLISHED", "LOCKED"] } },
     include: {
       categories: { include: { category: true } },
       tags: { include: { tag: true } }
@@ -22,7 +22,7 @@ export async function GET(_request: Request, { params }: Props) {
   return NextResponse.json({
     data: {
       ...data,
-      content: sanitizeRichText(data.content),
+      content: data.status === "LOCKED" ? null : sanitizeRichText(data.content),
       thumbnailUrl: data.thumbnailUrl ? await resolvePublicImageUrl(data.thumbnailUrl, blogFallbackImages[0]) : null
     }
   });

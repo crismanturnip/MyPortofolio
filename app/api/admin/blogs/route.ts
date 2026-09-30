@@ -45,7 +45,7 @@ export async function POST(request: Request) {
       content: parsed.data.content,
       thumbnailUrl: parsed.data.thumbnailUrl || null,
       status: parsed.data.status,
-      publishedAt: parsed.data.status === "PUBLISHED" ? new Date() : null,
+      publishedAt: parsed.data.status !== "DRAFT" ? new Date() : null,
       categories: {
         create: parsed.data.categoryIds.map((categoryId) => ({
           category: { connect: { id: categoryId } }

@@ -21,17 +21,17 @@ function plainText(html: string) {
 export default async function ReaderLandingPage() {
   const [blogs, novels] = await Promise.all([
     prisma.blog.findMany({
-      where: { status: "PUBLISHED" },
+      where: { status: { in: ["PUBLISHED", "LOCKED"] } },
       orderBy: [{ publishedAt: "desc" }, { updatedAt: "desc" }],
       take: 3,
     }),
     prisma.novel.findMany({
-      where: { status: "PUBLISHED" },
+      where: { status: { in: ["PUBLISHED", "LOCKED"] } },
       orderBy: [{ publishedAt: "desc" }, { updatedAt: "desc" }],
       take: 1,
       include: {
         chapters: {
-          where: { status: "PUBLISHED" },
+          where: { status: { in: ["PUBLISHED", "LOCKED"] } },
           orderBy: { chapterNumber: "desc" },
           take: 3,
           include: {
@@ -47,7 +47,7 @@ export default async function ReaderLandingPage() {
   ]);
 
   const featuredNovel = novels[0];
-  const latestChapters = featuredNovel?.chapters ?? [];
+  const latestChapters = featuredNovel?.status === "LOCKED" ? [] : featuredNovel?.chapters ?? [];
   const latestNovelUpdate = featuredNovel?.chapters[0]?.publishedAt || featuredNovel?.publishedAt;
   const displayBlogs = await Promise.all(
     blogs.map(async (blog, index) => ({
@@ -115,10 +115,11 @@ export default async function ReaderLandingPage() {
                 </div>
                 <div className="py-1">
                   <h3 className="text-xl font-semibold leading-snug group-hover:text-[var(--reader-primary)]">{blog.title}</h3>
+                  {blog.status === "LOCKED" ? <span className="mt-2 inline-flex rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-bold text-violet-700">Terkunci</span> : null}
                   <p className="reader-muted mt-2 text-xs font-medium">
                     {formatDate(blog.publishedAt)}
                   </p>
-                  <p className="reader-muted mt-3 line-clamp-2 text-sm leading-7">{blog.excerpt || plainText(blog.content) || "Tanpa excerpt."}</p>
+                  <p className="reader-muted mt-3 line-clamp-2 text-sm leading-7">{blog.excerpt || (blog.status === "LOCKED" ? "Tulisan ini masih terkunci." : plainText(blog.content) || "Tanpa excerpt.")}</p>
                 </div>
               </a>
             ))}
@@ -135,6 +136,7 @@ export default async function ReaderLandingPage() {
                 </div>
                 <div>
                   <h3 className="text-2xl font-semibold leading-tight">{featuredNovel.title}</h3>
+                  {featuredNovel.status === "LOCKED" ? <span className="mt-2 inline-flex rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-bold text-violet-700">Terkunci</span> : null}
                   <p className="reader-novel-genre mt-2 text-sm font-medium">{featuredNovel.genre || "Novel"}</p>
                   <p className="reader-muted mt-4 line-clamp-3 text-sm leading-7">{featuredNovel.summary}</p>
                   <a href={getPublicContentHref("novel", `/${featuredNovel.slug}`)} className="reader-novel-cta mt-5 inline-flex h-10 items-center rounded-lg border px-4 text-sm font-semibold">
@@ -155,7 +157,8 @@ export default async function ReaderLandingPage() {
                     </div>
                     <div>
                       <p className="text-sm font-semibold">Bab {chapter.chapterNumber} - {chapter.title}</p>
-                      <p className="reader-muted mt-1 line-clamp-1 text-xs">{plainText(chapter.content) || "Chapter novel."}</p>
+                      <p className="reader-muted mt-1 line-clamp-1 text-xs">{chapter.status === "LOCKED" ? "Chapter ini masih terkunci." : plainText(chapter.content) || "Chapter novel."}</p>
+                      {chapter.status === "LOCKED" ? <span className="mt-1 inline-flex rounded-full border border-violet-200 bg-violet-50 px-2.5 py-1 text-xs font-bold text-violet-700">Terkunci</span> : null}
                     </div>
                   </a>
                 ))}
