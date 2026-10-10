@@ -30,7 +30,11 @@ export async function PATCH(request: Request, { params }: Props) {
     return NextResponse.json({ message: "Novel tidak ditemukan." }, { status: 404 });
   }
 
-  const slug = await ensureUniqueSlug(parsed.data.slug || parsed.data.title, async (candidate) => {
+  const title = parsed.data.contentType === "CAKRA_NOTE" ? "Catatan Cakra" : parsed.data.title.trim();
+  const slugBase = parsed.data.contentType === "CAKRA_NOTE"
+    ? existingChapter.contentType === "CAKRA_NOTE" ? existingChapter.slug : `catatan-cakra-${Date.now()}`
+    : parsed.data.slug || title;
+  const slug = await ensureUniqueSlug(slugBase, async (candidate) => {
     const other = await prisma.chapter.findFirst({
       where: {
         id: { not: chapterId },
@@ -41,6 +45,16 @@ export async function PATCH(request: Request, { params }: Props) {
     return Boolean(other);
   });
 
+  const becomesCakraNote = parsed.data.contentType === "CAKRA_NOTE" && (existingChapter.contentType !== "CAKRA_NOTE" || existingChapter.novelId !== parsed.data.novelId);
+  const chapterNumber = becomesCakraNote
+    ? ((await prisma.chapter.aggregate({
+        where: { novelId: parsed.data.novelId, contentType: "CAKRA_NOTE", id: { not: chapterId } },
+        _max: { chapterNumber: true },
+      }))._max.chapterNumber ?? 1_000_000) + 1
+    : parsed.data.contentType === "CAKRA_NOTE"
+      ? existingChapter.chapterNumber
+      : parsed.data.chapterNumber;
+
   const data = await prisma.$transaction(async (tx) => {
     await tx.chapterSlide.deleteMany({ where: { chapterId } });
 
@@ -48,9 +62,10 @@ export async function PATCH(request: Request, { params }: Props) {
       where: { id: chapterId },
       data: {
         novelId: parsed.data.novelId,
-        title: parsed.data.title,
+        title,
         slug,
-        chapterNumber: parsed.data.chapterNumber,
+        contentType: parsed.data.contentType,
+        chapterNumber,
         content: parsed.data.content,
         thumbnailUrl: parsed.data.thumbnailUrl || null,
         musicTitle: parsed.data.musicTitle || null,

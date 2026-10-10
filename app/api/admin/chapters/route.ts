@@ -37,19 +37,29 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Novel tidak ditemukan." }, { status: 404 });
   }
 
-  const slug = await ensureUniqueSlug(parsed.data.slug || parsed.data.title, async (candidate) => {
+  const title = parsed.data.contentType === "CAKRA_NOTE" ? "Catatan Cakra" : parsed.data.title.trim();
+  const slugBase = parsed.data.contentType === "CAKRA_NOTE" ? `catatan-cakra-${Date.now()}` : parsed.data.slug || title;
+  const slug = await ensureUniqueSlug(slugBase, async (candidate) => {
     const existing = await prisma.chapter.findFirst({
       where: { novelId: parsed.data.novelId, slug: candidate }
     });
     return Boolean(existing);
   });
 
+  const chapterNumber = parsed.data.contentType === "CAKRA_NOTE"
+    ? ((await prisma.chapter.aggregate({
+        where: { novelId: parsed.data.novelId, contentType: "CAKRA_NOTE" },
+        _max: { chapterNumber: true },
+      }))._max.chapterNumber ?? 1_000_000) + 1
+    : parsed.data.chapterNumber;
+
   const data = await prisma.chapter.create({
     data: {
       novelId: parsed.data.novelId,
-      title: parsed.data.title,
+      title,
       slug,
-      chapterNumber: parsed.data.chapterNumber,
+      contentType: parsed.data.contentType,
+      chapterNumber,
       content: parsed.data.content,
       thumbnailUrl: parsed.data.thumbnailUrl || null,
       musicTitle: parsed.data.musicTitle || null,

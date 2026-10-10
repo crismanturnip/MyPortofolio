@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Crisman P Turnip",
-  description: "Website untuk konten pribadi (blog, novel, chapter)"
+  description: "Ruang tempatnya membaca apapun yang disukai tanpa harus terikat dengan apapun"
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

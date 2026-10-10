@@ -68,6 +68,14 @@ export default function PublicShell({ children }: { children: React.ReactNode })
             </button>
             <button
               type="button"
+              aria-label={darkMode ? "Mode terang" : "Mode malam"}
+              onClick={() => setDarkMode((current) => !current)}
+              className="mr-2 grid h-10 w-10 place-items-center text-[var(--reader-primary-strong)] transition-opacity hover:opacity-70 md:hidden"
+            >
+              {darkMode ? <Sun size={17} /> : <Moon size={17} />}
+            </button>
+            <button
+              type="button"
               aria-label={mobileOpen ? "Tutup menu" : "Buka menu"}
               aria-expanded={mobileOpen}
               aria-controls="reader-mobile-menu"
@@ -93,21 +101,10 @@ export default function PublicShell({ children }: { children: React.ReactNode })
                     onClick={() => setMobileOpen(false)}
                   >
                     {item.label}
-                    {active ? <span className="h-2 w-2 rounded-full bg-[var(--reader-cyan)]" /> : null}
                   </a>
                 );
               })}
             </nav>
-            <div className="mt-3 flex justify-end">
-              <button
-                type="button"
-                aria-label={darkMode ? "Mode terang" : "Mode malam"}
-                onClick={() => setDarkMode((current) => !current)}
-                className="reader-button-secondary grid h-11 w-11 place-items-center rounded-xl border"
-              >
-                {darkMode ? <Sun size={17} /> : <Moon size={17} />}
-              </button>
-            </div>
           </div>
         ) : null}
       </header>

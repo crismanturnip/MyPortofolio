@@ -49,6 +49,7 @@ export type ChapterEditorData = {
   novelId: number;
   title: string;
   slug: string;
+  contentType: "CHAPTER" | "CAKRA_NOTE";
   chapterNumber: number;
   content: string;
   thumbnailUrl: string | null;

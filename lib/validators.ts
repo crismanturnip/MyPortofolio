@@ -65,14 +65,19 @@ export const novelSchema = z.object({
 
 export const chapterSchema = z.object({
   novelId: z.coerce.number().int().positive(),
-  title: z.string().min(1),
+  title: z.string().optional().default(""),
   slug: z.string().optional().default(""),
+  contentType: z.enum(["CHAPTER", "CAKRA_NOTE"]).optional().default("CHAPTER"),
   chapterNumber: z.coerce.number().int().positive(),
   content: z.string().optional().default(""),
   thumbnailUrl: imageUrlSchema.optional().default(""),
   status: publishStatusSchema,
   slides: z.array(chapterSlideSchema).optional().default([]),
   ...musicFields
+}).superRefine((value, context) => {
+  if (value.contentType === "CHAPTER" && !value.title.trim()) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["title"], message: "Judul bagian wajib diisi." });
+  }
 });
 
 export const taxonomySchema = z.object({

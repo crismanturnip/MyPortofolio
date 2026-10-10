@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import StoryReader, { ReaderChapterHeader } from "@/components/story-reader";
+import StoryReader, { ReaderChapterHeader, ReaderChapterListButton } from "@/components/story-reader";
 import { sanitizeRichText } from "@/lib/sanitize-html";
 import MusicPlayer, { type MusicTrack } from "@/components/music-player";
 import LockedContentNotice from "@/components/locked-content-notice";
@@ -31,7 +31,7 @@ export default async function ChapterDetailPage({ params }: Props) {
   }
 
   if (chapter.status === "LOCKED" || chapter.novel.status === "LOCKED") {
-    return <LockedContentNotice title={`Chapter ${chapter.chapterNumber}: ${chapter.title}`} backHref={`/novel/${chapter.novel.slug}`} backLabel="Kembali ke novel" detail="Chapter ini masih terkunci dan belum bisa dibaca. Silakan kembali lagi nanti." />;
+    return <LockedContentNotice title={chapter.contentType === "CAKRA_NOTE" ? "Catatan Cakra" : `Bagian ${chapter.chapterNumber}: ${chapter.title}`} backHref={`/novel/${chapter.novel.slug}`} backLabel="Kembali ke novel" detail="Halaman ini masih terkunci, silahkan kunjungi di lain hari saat halaman sudah terbuka" />;
   }
 
   const siblings = await prisma.chapter.findMany({
@@ -41,6 +41,8 @@ export default async function ChapterDetailPage({ params }: Props) {
       title: true,
       slug: true,
       chapterNumber: true,
+      contentType: true,
+      publishedAt: true,
       status: true,
       thumbnailUrl: true,
       slides: {
@@ -59,6 +61,9 @@ export default async function ChapterDetailPage({ params }: Props) {
     chapterNumber: item.chapterNumber,
     thumbnail: item.status === "LOCKED" ? item.thumbnailUrl : item.thumbnailUrl || item.slides.find((slide) => slide.imageUrl)?.imageUrl || null,
     slideCount: item.status === "LOCKED" ? 0 : item.slides.length,
+    locked: item.status === "LOCKED",
+    contentType: item.contentType as "CHAPTER" | "CAKRA_NOTE",
+    publishedAt: item.publishedAt?.toISOString() ?? null,
   }));
   const track: MusicTrack | null = chapter.musicUrl
     ? { title: chapter.musicTitle, artist: chapter.musicArtist, url: chapter.musicUrl, volume: chapter.musicVolume, source: "chapter" }
@@ -70,12 +75,13 @@ export default async function ChapterDetailPage({ params }: Props) {
     return (
       <StoryReader
         story={{ title: chapter.novel.title, slug: chapter.novel.slug }}
-        episode={{ title: chapter.title, slug: chapter.slug, chapterNumber: chapter.chapterNumber }}
+        episode={{ title: chapter.title, slug: chapter.slug, chapterNumber: chapter.chapterNumber, contentType: chapter.contentType as "CHAPTER" | "CAKRA_NOTE", publishedAt: chapter.publishedAt?.toISOString() ?? null }}
         slides={chapter.slides}
         episodes={episodes}
         previous={previous ? episodes[currentIndex - 1] : null}
         next={next ? episodes[currentIndex + 1] : null}
         music={track}
+        partLabel="Bagian"
       />
     );
   }
@@ -85,19 +91,20 @@ export default async function ChapterDetailPage({ params }: Props) {
 
   return (
     <article className="reader-page mx-auto max-w-[780px] px-4 py-8 sm:px-6 sm:py-12">
-      <ReaderChapterHeader story={{ title: chapter.novel.title, slug: chapter.novel.slug }} episode={{ title: chapter.title, slug: chapter.slug, chapterNumber: chapter.chapterNumber }} episodes={episodes} />
-      <a href={`/novel/${chapter.novel.slug}`} className="reader-primary text-sm font-bold">← Kembali ke detail novel</a>
+      <ReaderChapterHeader story={{ title: chapter.novel.title, slug: chapter.novel.slug }} episode={{ title: chapter.title, slug: chapter.slug, chapterNumber: chapter.chapterNumber, contentType: chapter.contentType as "CHAPTER" | "CAKRA_NOTE", publishedAt: chapter.publishedAt?.toISOString() ?? null }} episodes={episodes} partLabel="Episode" mobileListAtBottom />
       <header className="mt-8 border-b pb-8 text-center" style={{ borderColor: "var(--reader-border)" }}>
         <p className="reader-muted text-sm font-bold uppercase tracking-[0.22em]">{chapter.novel.title}</p>
         <h1 className="mt-3 text-4xl font-semibold leading-tight tracking-wide md:text-5xl">{chapter.title}</h1>
-        <p className="reader-muted mt-4">Chapter {chapter.chapterNumber} • {Math.max(1, Math.ceil(words / 180))} menit baca</p>
+        <p className="reader-muted mt-4">{chapter.contentType === "CAKRA_NOTE" ? `Catatan Cakra${chapter.publishedAt ? ` • ${chapter.publishedAt.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}` : ""}` : `Bagian ${chapter.chapterNumber}`} • {Math.max(1, Math.ceil(words / 180))} menit baca</p>
       </header>
       {track ? <div className="mt-6"><MusicPlayer track={track} /></div> : null}
       <section className="py-8">
         <div className="reader-article rounded-2xl border p-5 sm:p-8 md:p-10">
           <div className="reader-content" dangerouslySetInnerHTML={{ __html: safeContent }} />
+          <ReaderChapterListButton story={{ title: chapter.novel.title, slug: chapter.novel.slug }} episode={{ title: chapter.title, slug: chapter.slug, chapterNumber: chapter.chapterNumber, contentType: chapter.contentType as "CHAPTER" | "CAKRA_NOTE", publishedAt: chapter.publishedAt?.toISOString() ?? null }} episodes={episodes} partLabel="Bagian" />
         </div>
       </section>
+      <a href={`/novel/${chapter.novel.slug}`} className="reader-primary inline-flex text-sm font-bold">← Kembali ke halaman novel</a>
     </article>
   );
 }

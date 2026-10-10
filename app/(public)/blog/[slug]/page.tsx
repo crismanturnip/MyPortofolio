@@ -34,10 +34,10 @@ export default async function BlogDetailPage({ params }: Props) {
   return (
     <article className="reader-page">
       <section className="reader-reveal mx-auto max-w-4xl px-4 py-10 text-center sm:px-6 sm:py-14">
-        <a href="/blog" className="reader-back-link mx-auto mb-7 inline-flex items-center gap-2 text-sm font-bold"><ArrowLeft size={16} aria-hidden="true" />Kembali ke semua blog</a>
+        <a href="/blog" className="reader-back-link mx-auto mb-7 hidden items-center gap-2 text-sm font-bold md:inline-flex"><ArrowLeft size={16} aria-hidden="true" />Kembali ke semua blog</a>
         <div className="flex justify-center gap-2">
           {blog.categories.map(({ category }) => (
-            <span key={category.id} className="reader-badge rounded-full border px-3 py-1 text-xs font-bold">{category.name}</span>
+            <span key={category.id} className="reader-primary text-sm font-medium">{category.name}</span>
           ))}
         </div>
         <h1 className="mt-5 text-4xl font-semibold leading-tight tracking-wide md:text-6xl">{blog.title}</h1>
@@ -56,11 +56,14 @@ export default async function BlogDetailPage({ params }: Props) {
         <div className="reader-article rounded-2xl border p-5 sm:p-8 md:p-10">
           <div className="reader-content" dangerouslySetInnerHTML={{ __html: safeContent }} />
         </div>
-        <div className="mt-10 flex flex-wrap gap-2">
-          {blog.tags.map(({ tag }) => (
-            <span key={tag.id} className="reader-button-secondary rounded-full border px-3 py-1 text-sm font-bold">#{tag.name}</span>
-          ))}
-        </div>
+        {blog.tags.length ? (
+          <div className="mt-10 flex flex-wrap gap-2">
+            {blog.tags.map(({ tag }) => (
+              <span key={tag.id} className="reader-button-secondary rounded-full border px-3 py-1 text-sm font-bold">#{tag.name}</span>
+            ))}
+          </div>
+        ) : null}
+        <a href="/blog" className="reader-back-link mt-6 inline-flex items-center gap-2 text-sm font-bold md:hidden"><ArrowLeft size={16} aria-hidden="true" />Kembali ke semua blog</a>
       </section>
     </article>
   );

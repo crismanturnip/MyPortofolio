@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, BookOpen, ChevronLeft, ChevronRight, List, Maximize2, RotateCcw, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, ChevronLeft, ChevronRight, List, LockKeyhole, Maximize2, RotateCcw, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MusicPlayer, { type MusicTrack } from "@/components/music-player";
 import { sanitizeRichText } from "@/lib/sanitize-html";
@@ -22,6 +22,9 @@ type ReaderEpisode = {
   chapterNumber: number;
   thumbnail: string | null;
   slideCount: number;
+  locked?: boolean;
+  contentType?: "CHAPTER" | "CAKRA_NOTE";
+  publishedAt?: string | null;
 };
 
 type StoryReaderProps = {
@@ -33,6 +36,8 @@ type StoryReaderProps = {
     title: string;
     slug: string;
     chapterNumber: number;
+    contentType?: "CHAPTER" | "CAKRA_NOTE";
+    publishedAt?: string | null;
   };
   slides: ReaderSlide[];
   episodes: ReaderEpisode[];
@@ -43,6 +48,7 @@ type StoryReaderProps = {
   backHref?: string;
   chapterBasePath?: string;
   headerAction?: React.ReactNode;
+  partLabel?: string;
 };
 
 function slideStorageKey(storySlug: string, episodeSlug: string) {
@@ -62,7 +68,12 @@ function progressLabel(storySlug: string, episodeSlug: string, namespace = "publ
   return Number.isFinite(parsed) && parsed > 0 ? `Terakhir slide ${parsed + 1}` : "";
 }
 
-export default function StoryReader({ story, episode, slides, episodes, previous, next, music, progressNamespace = "public", backHref, chapterBasePath, headerAction }: StoryReaderProps) {
+function formatPublishedDate(value?: string | null) {
+  if (!value) return "Belum diterbitkan";
+  return new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "long", year: "numeric" }).format(new Date(value));
+}
+
+export default function StoryReader({ story, episode, slides, episodes, previous, next, music, progressNamespace = "public", backHref, chapterBasePath, headerAction, partLabel = "Chapter" }: StoryReaderProps) {
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const endingIndex = slides.length;
@@ -144,13 +155,13 @@ export default function StoryReader({ story, episode, slides, episodes, previous
   return (
     <div className="reader-bg min-h-[calc(100vh-4rem)] px-3 py-4 sm:px-5 md:px-6 md:py-8">
       <div className="mx-auto flex w-full max-w-[560px] flex-col gap-4 md:max-w-[640px] md:gap-5 xl:max-w-[680px]">
-        <ReaderChapterHeader story={story} episode={episode} episodes={episodes} progressNamespace={progressNamespace} backHref={backHref} chapterBasePath={chapterBasePath} onFullscreen={enterFullscreen} action={headerAction} />
+        <ReaderChapterHeader story={story} episode={episode} episodes={episodes} progressNamespace={progressNamespace} backHref={backHref} chapterBasePath={chapterBasePath} onFullscreen={enterFullscreen} action={headerAction} partLabel={partLabel} />
 
         <section className="reader-surface rounded-2xl border px-4 py-3.5 sm:px-5 sm:py-4">
           <div className="grid grid-cols-[3rem_minmax(0,1fr)_3rem] items-center gap-2">
             <span aria-hidden="true" />
             <div className="min-w-0 text-center">
-              <p className="reader-muted text-[0.65rem] font-semibold uppercase tracking-[0.18em]">Chapter {episode.chapterNumber}</p>
+              <p className="reader-muted text-[0.65rem] font-semibold uppercase tracking-[0.18em]">{episode.contentType === "CAKRA_NOTE" ? "Catatan Cakra" : `${partLabel} ${episode.chapterNumber}`}</p>
               <h1 className="mt-1 truncate text-lg font-bold leading-tight tracking-wide sm:text-xl">{episode.title}</h1>
             </div>
             <span className="reader-muted justify-self-end text-xs font-semibold tabular-nums">{Math.min(activeIndex + 1, slides.length)}/{slides.length}</span>
@@ -178,7 +189,7 @@ export default function StoryReader({ story, episode, slides, episodes, previous
             {slides.map((slide) => (
               <StorySlide key={slide.id} slide={slide} />
             ))}
-            <CompletionCard storyHref={storyHref} episodeHref={episodeHref} next={next} onReplay={() => scrollToIndex(0)} />
+            <CompletionCard storyHref={storyHref} episodeHref={episodeHref} next={next} onReplay={() => scrollToIndex(0)} partLabel={partLabel} />
           </div>
 
           <button
@@ -205,12 +216,12 @@ export default function StoryReader({ story, episode, slides, episodes, previous
           {isEnding ? (
             next ? (
               <a href={episodeHref(next.slug)} className="reader-button inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border px-2 text-xs font-semibold sm:text-sm">
-                Episode Berikutnya
+                {partLabel} Berikutnya
                 <ArrowRight size={18} />
               </a>
             ) : (
               <a href={storyHref} className="reader-button inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border px-2 text-xs font-semibold sm:text-sm">
-                Daftar Episode
+                Daftar {partLabel}
               </a>
             )
           ) : (
@@ -227,7 +238,7 @@ export default function StoryReader({ story, episode, slides, episodes, previous
   );
 }
 
-export function ReaderChapterHeader({ story, episode, episodes, progressNamespace = "public", backHref, chapterBasePath, onFullscreen, action }: Pick<StoryReaderProps, "story" | "episode" | "episodes" | "progressNamespace" | "backHref" | "chapterBasePath"> & { onFullscreen?: () => void; action?: React.ReactNode }) {
+export function ReaderChapterHeader({ story, episode, episodes, progressNamespace = "public", backHref, chapterBasePath, onFullscreen, action, partLabel = "Chapter", mobileListAtBottom = false }: Pick<StoryReaderProps, "story" | "episode" | "episodes" | "progressNamespace" | "backHref" | "chapterBasePath" | "partLabel"> & { onFullscreen?: () => void; action?: React.ReactNode; mobileListAtBottom?: boolean }) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const storyHref = backHref || `/novel/${story.slug}`;
   const episodeHref = (slug: string) => chapterBasePath ? `${chapterBasePath}/${slug}` : `/novel/${story.slug}/chapter/${slug}`;
@@ -235,14 +246,27 @@ export function ReaderChapterHeader({ story, episode, episodes, progressNamespac
   return <>
     <header className="reader-surface sticky top-[4.75rem] z-20 rounded-2xl border p-3 shadow-sm md:top-24">
       <div className="flex items-center justify-between gap-3">
-        <a href={storyHref} className="reader-button-secondary grid h-10 w-10 shrink-0 place-items-center rounded-xl border" aria-label="Kembali ke daftar episode"><ArrowLeft size={18} /></a>
-        <div className="min-w-0 flex-1 text-center"><p className="truncate text-sm font-semibold">{story.title}</p><p className="reader-muted truncate text-xs">Episode {episode.chapterNumber}: {episode.title}</p></div>
+        <a href={storyHref} className="reader-button-secondary grid h-10 w-10 shrink-0 place-items-center rounded-xl border" aria-label={`Kembali ke daftar ${partLabel.toLowerCase()}`}><ArrowLeft size={18} /></a>
+        <div className="min-w-0 flex-1 text-center"><p className="truncate text-sm font-semibold">{story.title}</p><p className="reader-muted truncate text-xs">{episode.contentType === "CAKRA_NOTE" ? "Catatan Cakra" : `${partLabel} ${episode.chapterNumber}: ${episode.title}`}</p></div>
         {action}
-        <button type="button" onClick={() => setSheetOpen(true)} className="reader-button-secondary grid h-10 w-10 shrink-0 place-items-center rounded-xl border" aria-label="Buka daftar episode"><List size={18} /></button>
+        <button type="button" onClick={() => setSheetOpen(true)} className={`reader-button-secondary h-10 w-10 shrink-0 place-items-center rounded-xl border ${mobileListAtBottom ? "hidden md:grid" : "grid"}`} aria-label={`Buka daftar ${partLabel.toLowerCase()}`}><List size={18} /></button>
+        {mobileListAtBottom ? <span className="h-10 w-10 shrink-0 md:hidden" aria-hidden="true" /> : null}
         {onFullscreen ? <button type="button" onClick={onFullscreen} className="reader-button-secondary hidden h-10 w-10 shrink-0 place-items-center rounded-xl border sm:grid" aria-label="Mode layar penuh"><Maximize2 size={17} /></button> : null}
       </div>
     </header>
-    <EpisodeListSheet open={sheetOpen} onClose={() => setSheetOpen(false)} storySlug={story.slug} progressNamespace={progressNamespace} episodeHref={episodeHref} currentSlug={episode.slug} episodes={episodes} />
+    <EpisodeListSheet open={sheetOpen} onClose={() => setSheetOpen(false)} storySlug={story.slug} progressNamespace={progressNamespace} episodeHref={episodeHref} currentSlug={episode.slug} episodes={episodes} partLabel={partLabel} />
+  </>;
+}
+
+export function ReaderChapterListButton({ story, episode, episodes, progressNamespace = "public", chapterBasePath, partLabel = "Chapter" }: Pick<StoryReaderProps, "story" | "episode" | "episodes" | "progressNamespace" | "chapterBasePath" | "partLabel">) {
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const episodeHref = (slug: string) => chapterBasePath ? `${chapterBasePath}/${slug}` : `/novel/${story.slug}/chapter/${slug}`;
+
+  return <>
+    <button type="button" onClick={() => setSheetOpen(true)} className="reader-button-secondary reader-floating-chapter-button fixed bottom-[calc(2.75rem+env(safe-area-inset-bottom))] right-6 z-40 grid h-12 w-12 place-items-center rounded-full border shadow-lg md:hidden" aria-label={`Buka daftar ${partLabel.toLowerCase()}`}>
+      <List size={19} />
+    </button>
+    <EpisodeListSheet open={sheetOpen} onClose={() => setSheetOpen(false)} storySlug={story.slug} progressNamespace={progressNamespace} episodeHref={episodeHref} currentSlug={episode.slug} episodes={episodes} partLabel={partLabel} />
   </>;
 }
 
@@ -271,22 +295,22 @@ function StorySlide({ slide }: { slide: ReaderSlide }) {
   );
 }
 
-function CompletionCard({ storyHref, episodeHref, next, onReplay }: { storyHref: string; episodeHref: (slug: string) => string; next: ReaderEpisode | null; onReplay: () => void }) {
+function CompletionCard({ storyHref, episodeHref, next, onReplay, partLabel }: { storyHref: string; episodeHref: (slug: string) => string; next: ReaderEpisode | null; onReplay: () => void; partLabel: string }) {
   return (
     <article className="grid min-w-full snap-center snap-always place-items-center bg-[var(--reader-surface-soft)] p-6 text-center">
       <div className="w-full max-w-sm">
-        <p className="reader-muted text-xs font-semibold uppercase tracking-[0.2em]">Akhir chapter</p>
-        {next ? <p className="mt-3 text-lg font-semibold">Berikutnya: Chapter {next.chapterNumber} · {next.title}</p> : <p className="reader-muted mt-3">Belum ada chapter berikutnya.</p>}
+        <p className="reader-muted text-xs font-semibold uppercase tracking-[0.2em]">Akhir {partLabel}</p>
+        {next ? <p className="mt-3 inline-flex items-center justify-center gap-2 text-lg font-semibold">Berikutnya: {next.contentType === "CAKRA_NOTE" ? "Catatan Cakra" : `${partLabel} ${next.chapterNumber} · ${next.title}`}{next.locked ? <LockKeyhole className="reader-public-lock-icon" size={16} aria-label="Terkunci" /> : null}</p> : <p className="reader-muted mt-3">Belum ada {partLabel.toLowerCase()} berikutnya.</p>}
         <div className="mt-6 grid gap-3">
           {next ? (
             <a href={episodeHref(next.slug)} className="reader-button inline-flex h-11 items-center justify-center gap-2 rounded-xl border text-sm font-semibold">
-              Baca Chapter Berikutnya
+              Baca {partLabel} Berikutnya
               <ArrowRight size={17} />
             </a>
           ) : null}
           <a href={storyHref} className="reader-button-secondary inline-flex h-11 items-center justify-center gap-2 rounded-xl border text-sm font-semibold">
             <BookOpen size={17} />
-            Kembali ke Daftar Chapter
+            Kembali ke Daftar {partLabel}
           </a>
           <button type="button" onClick={onReplay} className="reader-button-secondary inline-flex h-11 items-center justify-center gap-2 rounded-xl border text-sm font-semibold">
             <RotateCcw size={17} />
@@ -306,6 +330,7 @@ function EpisodeListSheet({
   episodeHref,
   currentSlug,
   episodes,
+  partLabel,
 }: {
   open: boolean;
   onClose: () => void;
@@ -314,19 +339,21 @@ function EpisodeListSheet({
   episodeHref: (slug: string) => string;
   currentSlug: string;
   episodes: ReaderEpisode[];
+  partLabel: string;
 }) {
   if (!open) return null;
+  const itemPartLabel = partLabel === "Bagian" ? "Bag" : partLabel;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 p-3 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Daftar episode">
-      <button type="button" className="absolute inset-0 h-full w-full cursor-default" onClick={onClose} aria-label="Tutup daftar episode" />
+    <div className="fixed inset-0 z-50 bg-black/50 p-3 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={`Daftar ${partLabel.toLowerCase()}`}>
+      <button type="button" className="absolute inset-0 h-full w-full cursor-default" onClick={onClose} aria-label={`Tutup daftar ${partLabel.toLowerCase()}`} />
       <div className="reader-surface absolute inset-x-3 bottom-3 mx-auto max-h-[78vh] max-w-[520px] overflow-hidden rounded-3xl border shadow-2xl md:inset-y-8 md:right-8 md:left-auto md:w-[420px]">
         <div className="flex items-center justify-between border-b border-[var(--reader-border)] p-4">
           <div>
-            <h2 className="font-semibold">Daftar Episode</h2>
-            <p className="reader-muted text-sm">{episodes.length} episode tersedia</p>
+            <h2 className="font-semibold">Daftar {partLabel}</h2>
+            <p className="reader-muted text-sm">{episodes.length} {partLabel.toLowerCase()} tersedia</p>
           </div>
-          <button type="button" onClick={onClose} className="reader-button-secondary grid h-10 w-10 place-items-center rounded-xl border" aria-label="Tutup daftar episode">
+          <button type="button" onClick={onClose} className="reader-button-secondary grid h-10 w-10 place-items-center rounded-xl border" aria-label={`Tutup daftar ${partLabel.toLowerCase()}`}>
             <X size={18} />
           </button>
         </div>
@@ -335,15 +362,18 @@ function EpisodeListSheet({
             const active = item.slug === currentSlug;
             const saved = progressLabel(storySlug, item.slug, progressNamespace);
             return (
-              <a key={item.slug} href={episodeHref(item.slug)} className={`grid grid-cols-[64px_1fr] gap-3 rounded-2xl border p-3 ${active ? "border-[var(--reader-cyan)]" : "border-[var(--reader-border)]"}`}>
+              <a key={item.slug} href={episodeHref(item.slug)} className={`grid grid-cols-[64px_1fr] gap-3 rounded-2xl border p-3 ${active ? "border-[var(--reader-primary)]" : "border-[var(--reader-border)]"}`}>
                 {item.thumbnail ? (
                   <img src={item.thumbnail} alt={item.title} className="aspect-[3/4] rounded-xl object-cover" loading="lazy" />
                 ) : (
-                  <div className="grid aspect-[3/4] place-items-center rounded-xl bg-[var(--reader-surface-soft)] text-xs font-semibold">Ch {item.chapterNumber}</div>
+                  <div className="grid aspect-[3/4] place-items-center rounded-xl bg-[var(--reader-surface-soft)] px-1 text-center text-xs font-semibold leading-tight">{item.contentType === "CAKRA_NOTE" ? <>Catatan<br />Cakra</> : <>{itemPartLabel}<br />{item.chapterNumber}</>}</div>
                 )}
                 <div>
-                  <p className="text-sm font-semibold">Ch {item.chapterNumber}: {item.title}</p>
-                  <p className="reader-muted mt-1 text-xs">{item.slideCount} slide</p>
+                  <p className="inline-flex items-center gap-2 text-sm font-semibold">
+                    <span>{item.contentType === "CAKRA_NOTE" ? "Catatan Cakra" : `${itemPartLabel} ${item.chapterNumber}: ${item.title}`}</span>
+                    {item.locked ? <LockKeyhole className="reader-public-lock-icon" size={14} aria-label="Terkunci" /> : null}
+                  </p>
+                  <p className="reader-muted mt-1 text-xs">{item.contentType === "CAKRA_NOTE" ? formatPublishedDate(item.publishedAt) : `${item.slideCount} slide`}</p>
                   <p className="mt-2 text-xs font-semibold">{active ? "Sedang dibaca" : saved || "Belum dibaca"}</p>
                 </div>
               </a>

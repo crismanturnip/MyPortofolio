@@ -30,6 +30,8 @@ export default async function ChapterPreviewPage({ params }: Props) {
     chapterNumber: item.chapterNumber,
     thumbnail: item.thumbnailUrl || item.slides.find((slide) => slide.imageUrl)?.imageUrl || null,
     slideCount: item.slides.length,
+    contentType: item.contentType as "CHAPTER" | "CAKRA_NOTE",
+    publishedAt: item.publishedAt?.toISOString() ?? null,
   }));
   const index = siblings.findIndex((item) => item.id === chapter.id);
   const music: MusicTrack | null = chapter.musicUrl
@@ -43,7 +45,7 @@ export default async function ChapterPreviewPage({ params }: Props) {
       <PreviewThemeShell className="-m-4 min-h-screen sm:-m-6">
         <StoryReader
           story={{ title: chapter.novel.title, slug: chapter.novel.slug }}
-          episode={{ title: chapter.title, slug: String(chapter.id), chapterNumber: chapter.chapterNumber }}
+          episode={{ title: chapter.title, slug: String(chapter.id), chapterNumber: chapter.chapterNumber, contentType: chapter.contentType as "CHAPTER" | "CAKRA_NOTE", publishedAt: chapter.publishedAt?.toISOString() ?? null }}
           slides={chapter.slides}
           episodes={episodes}
           previous={index > 0 ? episodes[index - 1] : null}
@@ -63,7 +65,7 @@ export default async function ChapterPreviewPage({ params }: Props) {
       <article className="mx-auto max-w-[760px]">
         <ReaderChapterHeader
           story={{ title: chapter.novel.title, slug: chapter.novel.slug }}
-          episode={{ title: chapter.title, slug: String(chapter.id), chapterNumber: chapter.chapterNumber }}
+          episode={{ title: chapter.title, slug: String(chapter.id), chapterNumber: chapter.chapterNumber, contentType: chapter.contentType as "CHAPTER" | "CAKRA_NOTE", publishedAt: chapter.publishedAt?.toISOString() ?? null }}
           episodes={episodes}
           progressNamespace="admin-preview"
           backHref={`/admin/preview/novels/${chapter.novelId}`}

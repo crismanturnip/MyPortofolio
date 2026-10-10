@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { BookOpen, FileText, HeartHandshake, LibraryBig, Lightbulb, NotebookPen, Quote } from "lucide-react";
+import { BookOpen, FileText, HeartHandshake, LibraryBig, Lightbulb, LockKeyhole, NotebookPen, Quote } from "lucide-react";
 import QuoteMusicPlayer from "@/components/quote-music-player";
 import { prisma } from "@/lib/prisma";
 import { blogFallbackImages, chapterFallbackImages, novelFallbackImages, resolvePublicImageUrl } from "@/lib/public-images";
@@ -81,7 +81,7 @@ export default async function ReaderLandingPage() {
               Sisakan waktu bagimu untuk menuangkan cerita. Terkadang, manusia hanya perlu bercerita, entah dimana atau dengan siapa anda bercerita
             </p>
             <div className="reader-hero-actions mt-8 flex flex-wrap gap-4">
-              <a href={getPublicContentHref("blog")} className="reader-button reader-hero-cta inline-flex h-12 items-center gap-2 rounded-lg border px-6 text-sm font-bold shadow-sm">
+              <a href={getPublicContentHref("blog")} className="reader-novel-cta reader-hero-cta inline-flex h-12 items-center gap-2 rounded-lg border px-6 text-sm font-semibold">
                 <BookOpen size={17} />
                 Baca Blog
               </a>
@@ -114,8 +114,10 @@ export default async function ReaderLandingPage() {
                   <img src={blog.thumbnailUrl} alt={blog.title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                 </div>
                 <div className="py-1">
-                  <h3 className="text-xl font-semibold leading-snug group-hover:text-[var(--reader-primary)]">{blog.title}</h3>
-                  {blog.status === "LOCKED" ? <span className="mt-2 inline-flex rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-bold text-violet-700">Terkunci</span> : null}
+                  <h3 className="inline-flex items-center gap-2 text-xl font-semibold leading-snug group-hover:text-[var(--reader-primary)]">
+                    <span>{blog.title}</span>
+                    {blog.status === "LOCKED" ? <LockKeyhole className="reader-public-lock-icon" size={16} aria-label="Terkunci" /> : null}
+                  </h3>
                   <p className="reader-muted mt-2 text-xs font-medium">
                     {formatDate(blog.publishedAt)}
                   </p>
@@ -135,30 +137,33 @@ export default async function ReaderLandingPage() {
                   <img src={featuredNovelCover || novelFallbackImages[0]} alt={featuredNovel.title} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-semibold leading-tight">{featuredNovel.title}</h3>
-                  {featuredNovel.status === "LOCKED" ? <span className="mt-2 inline-flex rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-bold text-violet-700">Terkunci</span> : null}
-                  <p className="reader-novel-genre mt-2 text-sm font-medium">{featuredNovel.genre || "Novel"}</p>
+                  <h3 className="inline-flex items-center gap-2 text-2xl font-semibold leading-tight">
+                    <span>{featuredNovel.title}</span>
+                    {featuredNovel.status === "LOCKED" ? <LockKeyhole className="reader-public-lock-icon" size={18} aria-label="Terkunci" /> : null}
+                  </h3>
                   <p className="reader-muted mt-4 line-clamp-3 text-sm leading-7">{featuredNovel.summary}</p>
                   <a href={getPublicContentHref("novel", `/${featuredNovel.slug}`)} className="reader-novel-cta mt-5 inline-flex h-10 items-center rounded-lg border px-4 text-sm font-semibold">
                     Baca Sekarang
                   </a>
                   <p className="reader-muted mt-4 text-xs font-medium">
-                    {featuredNovel.chapters.length} Bab <span className="px-2">•</span> Update terbaru {formatDate(latestNovelUpdate)}
+                    {featuredNovel.chapters.filter((chapter) => chapter.contentType !== "CAKRA_NOTE").length} Bagian <span className="px-2">•</span> Update terbaru {formatDate(latestNovelUpdate)}
                   </p>
                 </div>
               </div>
 
               <div className="mt-6 grid gap-4">
-                {latestChapters.length === 0 ? <EmptyState text="Belum ada chapter published." /> : null}
+                {latestChapters.length === 0 ? <EmptyState text="Belum ada bagian yang dipublikasikan." /> : null}
                 {displayChapters.map((chapter) => (
                   <a key={chapter.id} href={getPublicContentHref("novel", `/${featuredNovel.slug}/chapter/${chapter.slug}`)} className="reader-chapter-link grid grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-3 rounded-lg p-2 sm:grid-cols-[56px_minmax(0,1fr)_auto] sm:gap-4">
                     <div className="h-14 w-14 overflow-hidden rounded-lg bg-[var(--reader-surface-soft)]">
                       <img src={chapter.thumbnailUrl} alt={chapter.title} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold">Bab {chapter.chapterNumber} - {chapter.title}</p>
-                      <p className="reader-muted mt-1 line-clamp-1 text-xs">{chapter.status === "LOCKED" ? "Chapter ini masih terkunci." : plainText(chapter.content) || "Chapter novel."}</p>
-                      {chapter.status === "LOCKED" ? <span className="mt-1 inline-flex rounded-full border border-violet-200 bg-violet-50 px-2.5 py-1 text-xs font-bold text-violet-700">Terkunci</span> : null}
+                      <p className="inline-flex items-center gap-2 text-sm font-semibold">
+                        <span>{chapter.contentType === "CAKRA_NOTE" ? "Catatan Cakra" : `Bagian ${chapter.chapterNumber} - ${chapter.title}`}</span>
+                        {chapter.status === "LOCKED" ? <LockKeyhole className="reader-public-lock-icon" size={14} aria-label="Terkunci" /> : null}
+                      </p>
+                      <p className="reader-muted mt-1 line-clamp-1 text-xs">{chapter.status === "LOCKED" ? "Halaman ini masih terkunci." : chapter.contentType === "CAKRA_NOTE" ? `Diterbitkan ${formatDate(chapter.publishedAt)}` : plainText(chapter.content) || "Bagian novel."}</p>
                     </div>
                   </a>
                 ))}
@@ -173,7 +178,7 @@ export default async function ReaderLandingPage() {
       <section id="tentang" className="mx-auto max-w-6xl px-4 pb-24 pt-8">
         <div className="reader-panel relative grid items-center gap-8 overflow-hidden rounded-2xl border p-8 md:grid-cols-[1.25fr_0.75fr] md:p-16">
           <div>
-            <Quote className="reader-cyan" size={35} />
+            <Quote className="reader-quote-mark" size={35} />
             <p className="mt-5 text-2xl italic leading-10 md:text-2xl">
               Hidup memang selalu dikelilingi oleh kata "Semoga". Dan, harapan selalu menjadi tujuan hidup manusia. Tidak ada yang lebih indah dari dua orang yang saling mendoakan hal yang baik.
             </p>
