@@ -343,6 +343,11 @@ function EpisodeListSheet({
 }) {
   if (!open) return null;
   const itemPartLabel = partLabel === "Bagian" ? "Bag" : partLabel;
+  const orderedEpisodes = [...episodes].sort((left, right) => {
+    const leftDate = left.publishedAt ? new Date(left.publishedAt).getTime() : 0;
+    const rightDate = right.publishedAt ? new Date(right.publishedAt).getTime() : 0;
+    return rightDate - leftDate || right.chapterNumber - left.chapterNumber;
+  });
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 p-3 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={`Daftar ${partLabel.toLowerCase()}`}>
@@ -358,7 +363,7 @@ function EpisodeListSheet({
           </button>
         </div>
         <div className="grid max-h-[calc(78vh-5rem)] gap-3 overflow-y-auto p-4">
-          {episodes.map((item) => {
+          {orderedEpisodes.map((item) => {
             const active = item.slug === currentSlug;
             const saved = progressLabel(storySlug, item.slug, progressNamespace);
             return (

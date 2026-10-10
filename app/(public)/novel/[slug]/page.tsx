@@ -16,7 +16,7 @@ export default async function NovelDetailPage({ params }: Props) {
     include: {
       chapters: {
         where: { status: { in: ["PUBLISHED", "LOCKED"] } },
-        orderBy: { chapterNumber: "asc" },
+        orderBy: [{ publishedAt: "desc" }, { chapterNumber: "desc" }],
       },
     },
   });
@@ -30,7 +30,7 @@ export default async function NovelDetailPage({ params }: Props) {
   }
 
   const storyChapters = novel.chapters.filter((chapter) => chapter.contentType !== "CAKRA_NOTE");
-  const firstChapter = storyChapters[0] || novel.chapters[0];
+  const firstChapter = [...storyChapters].sort((left, right) => left.chapterNumber - right.chapterNumber)[0] || novel.chapters.at(-1);
   const coverUrl = await resolvePublicImageUrl(novel.coverUrl, novelFallbackImages[0]);
 
   return (
